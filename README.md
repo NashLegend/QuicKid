@@ -1,5 +1,5 @@
 QuicKid
 =======
-0. Quick-Dialog
-1. Voice-Dialog
-2. Handwrite-Dialog
+1. Quick-Dialog
+2. Voice-Dialog
+3. ~~Handwrite-Dialog~~
