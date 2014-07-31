@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Dialpad in the Phone app. -->
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialpad"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layoutDirection="ltr"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:stretchColumns="*" >
+
+    <TableRow>
+        <com.example.quickid.DialpadKeyButton
+            android:id="@+id/one"
+            style="@style/DialpadKeyButtonStyle" >
+
+            <LinearLayout style="@style/DialpadKeyInternalLayoutStyle" >
+
+                <TextView
+                    android:id="@+id/dialpad_key_number"
+                    style="@style/DialpadKeyNumberStyle" />
+
+                <ImageView
+                    android:id="@+id/dialpad_key_voicemail"
+                    style="@style/DialpadKeyLettersStyle"
+                    android:baselineAlignBottom="true"
+                    android:scaleType="fitStart"
+                    android:src="@drawable/ic_dial_action_vm" />
+            </LinearLayout>
+        </com.example.quickid.DialpadKeyButton>
+
+        <include
+            android:id="@+id/two"
+            layout="@layout/dialpad_key" />
+
+        <include
+            android:id="@+id/three"
+            layout="@layout/dialpad_key" />
+    </TableRow>
+
+    <TableRow>
+
+        <include
+            android:id="@+id/four"
+            layout="@layout/dialpad_key" />
+
+        <include
+            android:id="@+id/five"
+            layout="@layout/dialpad_key" />
+
+        <include
+            android:id="@+id/six"
+            layout="@layout/dialpad_key" />
+    </TableRow>
+
+    <TableRow>
+
+        <include
+            android:id="@+id/seven"
+            layout="@layout/dialpad_key" />
+
+        <include
+            android:id="@+id/eight"
+            layout="@layout/dialpad_key" />
+
+        <include
+            android:id="@+id/nine"
+            layout="@layout/dialpad_key" />
+    </TableRow>
+
+    <TableRow>
+
+        <com.example.quickid.DialpadKeyButton
+            android:id="@+id/star"
+            style="@style/DialpadKeyButtonStyle" >
+
+            <LinearLayout style="@style/DialpadKeyInternalLayoutStyle" >
+
+                <TextView
+                    android:id="@id/dialpad_key_number"
+                    style="@style/DialpadKeyStarPoundStyle" />
+
+                <View
+                    android:layout_width="@dimen/dialpad_key_letters_width"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </com.example.quickid.DialpadKeyButton>
+
+        <include
+            android:id="@+id/zero"
+            layout="@layout/dialpad_key" />
+
+        <com.example.quickid.DialpadKeyButton
+            android:id="@+id/pound"
+            style="@style/DialpadKeyButtonStyle" >
+
+            <LinearLayout style="@style/DialpadKeyInternalLayoutStyle" >
+
+                <TextView
+                    android:id="@id/dialpad_key_number"
+                    style="@style/DialpadKeyStarPoundStyle" />
+
+                <View
+                    android:layout_width="@dimen/dialpad_key_letters_width"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </com.example.quickid.DialpadKeyButton>
+    </TableRow>
+
+</TableLayout>

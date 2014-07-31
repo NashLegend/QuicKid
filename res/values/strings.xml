@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">QuicKid</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="dialpad_0_number">0</string>
+    <string name="dialpad_1_number">1</string>
+    <string name="dialpad_2_number">2</string>
+    <string name="dialpad_3_number">3</string>
+    <string name="dialpad_4_number">4</string>
+    <string name="dialpad_5_number">5</string>
+    <string name="dialpad_6_number">6</string>
+    <string name="dialpad_7_number">7</string>
+    <string name="dialpad_8_number">8</string>
+    <string name="dialpad_9_number">9</string>
+    <string name="dialpad_star_number">*</string>
+    <string name="dialpad_pound_number">#</string>
+    <string name="dialpad_0_letters">+</string>
+    <string name="dialpad_1_letters"></string>
+    <string name="dialpad_2_letters">ABC</string>
+    <string name="dialpad_3_letters">DEF</string>
+    <string name="dialpad_4_letters">GHI</string>
+    <string name="dialpad_5_letters">JKL</string>
+    <string name="dialpad_6_letters">MNO</string>
+    <string name="dialpad_7_letters">PQRS</string>
+    <string name="dialpad_8_letters">TUV</string>
+    <string name="dialpad_9_letters">WXYZ</string>
+    <string name="dialpad_star_letters"></string>
+    <string name="dialpad_pound_letters"></string>
+    <string name="description_image_button_one" msgid="5502718871331943463">"一"</string>
+    <string name="description_image_button_two" msgid="4903738528222924522">"二"</string>
+    <string name="description_image_button_three" msgid="5570985408463782329">"三"</string>
+    <string name="description_image_button_four" msgid="1697520001239289074">"四"</string>
+    <string name="description_image_button_five" msgid="3450276493026943454">"五"</string>
+    <string name="description_image_button_six" msgid="2070376172268675300">"六"</string>
+    <string name="description_image_button_seven" msgid="1757351311199993371">"七"</string>
+    <string name="description_image_button_eight" msgid="4734693919020613227">"八"</string>
+    <string name="description_image_button_nine" msgid="5568534122590597040">"九"</string>
+    <string name="description_image_button_star" msgid="1976280813017254462">"星标"</string>
+    <string name="description_image_button_zero" msgid="4211255756866893605">"零"</string>
+    <string name="description_image_button_pound" msgid="1716041284529917866">"英镑"</string>
+    <string name="description_delete_button" msgid="4015842181592283903">"Backspace 键"</string>
+    <string name="description_dial_button" msgid="7459705245418435351">"拨号"</string>
+    <string name="action_menu_call_history_description" msgid="9018442816219748968">"通话记录"</string>
+    <string name="action_menu_dialpad_button">dial pad</string>
+    <string name="action_menu_overflow_description" msgid="2303272250613084574">"更多选项"</string>
+
+</resources>

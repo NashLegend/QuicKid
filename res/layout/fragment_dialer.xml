@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/top"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/digits_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dialpad_vertical_margin"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/digits"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:focusableInTouchMode="false"
+            android:gravity="center"
+            android:nextFocusRight="@+id/deleteButton"
+            android:scrollHorizontally="true"
+            android:textAppearance="@style/DialtactsDigitsTextAppearance" />
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="56dip"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="?android:attr/selectableItemBackground"
+            android:contentDescription="@string/description_delete_button"
+            android:gravity="center"
+            android:src="@drawable/ic_dial_action_delete"
+            android:state_enabled="false" />
+    </LinearLayout>
+
+    <include layout="@layout/dialpad" />
+
+</LinearLayout>
