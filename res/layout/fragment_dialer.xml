@@ -2,19 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/top"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="@dimen/dialpad_horizontal_margin"
-    android:layout_marginRight="@dimen/dialpad_horizontal_margin"
+    android:layout_height="wrap_content"
     android:background="#ffffff"
     android:orientation="vertical" >
 
     <LinearLayout
         android:id="@+id/digits_container"
         android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dialpad_vertical_margin"
-        android:layout_weight="@integer/dialpad_layout_weight_digits"
-        android:gravity="center" >
+        android:gravity="center"
+        android:orientation="horizontal" >
 
         <EditText
             android:id="@+id/digits"
@@ -41,54 +39,5 @@
     </LinearLayout>
 
     <include layout="@layout/dialpad" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dialpad_vertical_margin"
-        android:background="#66000000" />
-
-    <FrameLayout
-        android:id="@+id/fake_action_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/fake_action_bar_height"
-        android:background="@color/actionbar_background_color" >
-
-        <ImageButton
-            android:id="@+id/call_history_button"
-            android:layout_width="@dimen/fake_menu_button_min_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom|start"
-            android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/action_menu_call_history_description"
-            android:src="@drawable/ic_menu_history_lt" />
-
-        <ImageButton
-            android:id="@+id/dialpad_button"
-            android:layout_width="@dimen/fake_menu_button_min_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom|center"
-            android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/action_menu_dialpad_button"
-            android:src="@drawable/ic_menu_dialpad_lt" />
-
-        <ImageButton
-            android:id="@+id/dial_button"
-            android:layout_width="@dimen/fake_menu_button_min_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom|center"
-            android:background="@drawable/btn_call"
-            android:contentDescription="@string/description_dial_button"
-            android:src="@drawable/ic_dial_action_call"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/overflow_menu"
-            android:layout_width="@dimen/fake_menu_button_min_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom|end"
-            android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/action_menu_overflow_description"
-            android:src="@drawable/ic_menu_overflow_lt" />
-    </FrameLayout>
 
 </LinearLayout>

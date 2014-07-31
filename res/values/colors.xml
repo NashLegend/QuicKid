@@ -5,5 +5,6 @@
     <color name="dialpad_digits_text_color">#000000</color>
     <color name="background_dialpad_pressed">#ececec</color>
     <color name="background_dialpad">#ffffff</color>
+    <color name="dialpad_secondary_text_color">#8b8b8b</color>
 
 </resources>
