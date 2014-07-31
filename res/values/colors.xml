@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="actionbar_background_color">#3B77E7</color>
+    <color name="dialpad_digits_text_color">#000000</color>
+    <color name="background_dialpad_pressed">#ececec</color>
+    <color name="background_dialpad">#ffffff</color>
+
+</resources>

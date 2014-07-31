@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="dialpad_horizontal_margin">4dp</dimen>
+    <dimen name="dialpad_digits_text_size">35sp</dimen>
+    <dimen name="fake_action_bar_height">60dp</dimen>
+    <dimen name="fake_menu_button_min_width">56dp</dimen>
+    <dimen name="dialpad_digits_height">47dp</dimen>
+    <dimen name="dialpad_digits_padding">16dp</dimen>
+
+    <integer name="dialpad_layout_weight_digits">20</integer>
+    <integer name="dialpad_layout_weight_dialpad">65</integer>
+    <integer name="dialpad_layout_weight_additional_buttons">15</integer>
+
+    <dimen name="dialpad_vertical_margin">2dp</dimen>
+
+</resources>

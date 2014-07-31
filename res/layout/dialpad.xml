@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialpad"
+    android:layout_width="match_parent"
+    android:layout_height="0px"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="@dimen/dialpad_vertical_margin"
+    android:layout_weight="@integer/dialpad_layout_weight_dialpad"
+    android:paddingBottom="10dip"
+    android:paddingLeft="5dip"
+    android:paddingRight="5dip" >
+
+    <TableRow
+        android:layout_height="0px"
+        android:layout_weight="1" >
+
+        <ImageButton
+            android:id="@+id/one"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_one"
+            android:src="@drawable/dial_num_1_no_vm_wht" />
+
+        <ImageButton
+            android:id="@+id/two"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_two"
+            android:src="@drawable/dial_num_2_wht" />
+
+        <ImageButton
+            android:id="@+id/three"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_three"
+            android:src="@drawable/dial_num_3_wht" />
+    </TableRow>
+
+    <TableRow
+        android:layout_height="0px"
+        android:layout_weight="1" >
+
+        <ImageButton
+            android:id="@+id/four"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_four"
+            android:src="@drawable/dial_num_4_wht" />
+
+        <ImageButton
+            android:id="@+id/five"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_five"
+            android:src="@drawable/dial_num_5_wht" />
+
+        <ImageButton
+            android:id="@+id/six"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_six"
+            android:src="@drawable/dial_num_6_wht" />
+    </TableRow>
+
+    <TableRow
+        android:layout_height="0px"
+        android:layout_weight="1" >
+
+        <ImageButton
+            android:id="@+id/seven"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_seven"
+            android:src="@drawable/dial_num_7_wht" />
+
+        <ImageButton
+            android:id="@+id/eight"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_eight"
+            android:src="@drawable/dial_num_8_wht" />
+
+        <ImageButton
+            android:id="@+id/nine"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_nine"
+            android:src="@drawable/dial_num_9_wht" />
+    </TableRow>
+
+    <TableRow
+        android:layout_height="0px"
+        android:layout_weight="1" >
+
+        <ImageButton
+            android:id="@+id/star"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_star"
+            android:src="@drawable/dial_num_star_wht" />
+
+        <ImageButton
+            android:id="@+id/zero"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_zero"
+            android:src="@drawable/dial_num_0_no_plus_wht" />
+
+        <ImageButton
+            android:id="@+id/pound"
+            style="@style/DialpadButtonStyle"
+            android:contentDescription="@string/description_image_button_pound"
+            android:src="@drawable/dial_num_pound_wht" />
+    </TableRow>
+
+</TableLayout>
