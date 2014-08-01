@@ -6,19 +6,24 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
-public class MainActivity extends Activity implements OnClickListener, OnDialpadQueryChangedListener {
+public class MainActivity extends Activity implements OnClickListener,
+		OnDialpadQueryChangedListener {
 
 	private DialpadFragment mDialpadFragment;
 	private ImageButton mDialpadButton;
 	private ImageButton mDialButton;
 	private static final String TAG_DIALPAD_FRAGMENT = "dialpad";
-	private static final String TAG_REGULAR_SEARCH_FRAGMENT = "search";
-	private static final String TAG_SMARTDIAL_SEARCH_FRAGMENT = "smartdial";
-	private static final String TAG_FAVORITES_FRAGMENT = "favorites";
+	private static final String TAG_RECENT_DIAL_FRAGMENT = "recent";
+	private static final String TAG_SEARCH_FRAGMENT = "search";
+	private static final String TAG_ALL_CONTACTS_FRAGMENT = "all";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +33,8 @@ public class MainActivity extends Activity implements OnClickListener, OnDialpad
 		if (savedInstanceState == null) {
 			getFragmentManager()
 					.beginTransaction()
+					.add(R.id.layout_recent_dial, new RecentDialFragment(),
+							TAG_RECENT_DIAL_FRAGMENT)
 					.add(R.id.layout_dialer_panel, new DialpadFragment(),
 							TAG_DIALPAD_FRAGMENT).commit();
 		}
@@ -50,8 +57,16 @@ public class MainActivity extends Activity implements OnClickListener, OnDialpad
 		super.onAttachFragment(fragment);
 	}
 
-	private void buildFragment() {
+	private boolean isDialpadShowing() {
+		return mDialpadFragment != null && mDialpadFragment.isVisible();
+	}
 
+	private void enterSearchUi() {
+		// TODO
+	}
+
+	private void exitSearchUi() {
+		// TODO
 	}
 
 	private void showDialpad(boolean animate) {
@@ -89,6 +104,10 @@ public class MainActivity extends Activity implements OnClickListener, OnDialpad
 
 	@Override
 	public void onBackPressed() {
+		if (isDialpadShowing()) {
+			hideDialpad(true, false);
+			return;
+		}
 		moveTaskToBack(false);
 	}
 
@@ -108,7 +127,6 @@ public class MainActivity extends Activity implements OnClickListener, OnDialpad
 
 	@Override
 	public void onDialpadQueryChanged(String query) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }
