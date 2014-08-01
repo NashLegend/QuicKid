@@ -56,7 +56,7 @@
             android:src="@drawable/ic_menu_history_lt" />
 
         <ImageButton
-            android:id="@+id/dialpad_button"
+            android:id="@+id/button_dialpad"
             android:layout_width="@dimen/fake_menu_button_min_width"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|center"
@@ -65,7 +65,7 @@
             android:src="@drawable/ic_menu_dialpad_lt" />
 
         <ImageButton
-            android:id="@+id/dial_button"
+            android:id="@+id/button_dial"
             android:layout_width="@dimen/fake_menu_button_min_width"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|center"

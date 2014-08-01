@@ -8,25 +8,23 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+
 import java.util.HashSet;
 
-import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -44,9 +42,13 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	private View mDialpad;
 	private final HashSet<View> mPressedDialpadKeys = new HashSet<View>(12);
 	private boolean mDTMFToneEnabled;
+	private boolean mAdjustTranslationForAnimation = false;
 	private static final int TONE_LENGTH_INFINITE = -1;
 	private static final int TONE_RELATIVE_VOLUME = 80;
 	private static final int DIAL_TONE_STREAM_TYPE = AudioManager.STREAM_DTMF;
+	// This is the amount of screen the dialpad fragment takes up when fully
+	// displayed
+	private static final float DIALPAD_SLIDE_FRACTION = 0.67f;
 
 	public DialpadFragment() {
 		// TODO Auto-generated constructor stub
@@ -57,6 +59,34 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 			Bundle savedInstanceState) {
 		final View fragmentView = inflater.inflate(R.layout.fragment_dialer,
 				container, false);
+
+		final ViewTreeObserver vto = fragmentView.getViewTreeObserver();
+		// Adjust the translation of the DialpadFragment in a preDrawListener
+		// instead of in
+		// DialtactsActivity, because at the point in time when the
+		// DialpadFragment is added,
+		// its views have not been laid out yet.
+		final OnPreDrawListener preDrawListener = new OnPreDrawListener() {
+
+			@Override
+			public boolean onPreDraw() {
+
+				if (isHidden())
+					return true;
+				if (mAdjustTranslationForAnimation
+						&& fragmentView.getTranslationY() == 0) {
+					((DialpadSlidingLinearLayout) fragmentView)
+							.setYFraction(DIALPAD_SLIDE_FRACTION);
+				}
+				final ViewTreeObserver vto = fragmentView.getViewTreeObserver();
+				vto.removeOnPreDrawListener(this);
+				return true;
+			}
+
+		};
+
+		vto.addOnPreDrawListener(preDrawListener);
+
 		fragmentView.buildLayer();
 		mDigits = (EditText) fragmentView.findViewById(R.id.digits);
 		mDigits.setOnClickListener(this);
@@ -278,9 +308,45 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		// TODO Auto-generated method stub
 	}
 
+	private boolean mDigitsFilledByIntent;
+	private OnDialpadQueryChangedListener mDialpadQueryListener;
+
 	@Override
-	public void afterTextChanged(Editable s) {
-		// TODO Auto-generated method stub
+	public void afterTextChanged(Editable input) {
+		// When DTMF dialpad buttons are being pressed, we delay
+		// SpecialCharSequencMgr sequence,
+		// since some of SpecialCharSequenceMgr's behavior is too abrupt for the
+		// "touch-down"
+		// behavior.
+		if (!mDigitsFilledByIntent
+				&& SpecialCharSequenceMgr.handleChars(getActivity(),
+						input.toString(), mDigits)) {
+			// A special sequence was entered, clear the digits
+			mDigits.getText().clear();
+		}
+
+		if (isDigitsEmpty()) {
+			mDigitsFilledByIntent = false;
+			mDigits.setCursorVisible(false);
+		}
+
+		if (mDialpadQueryListener != null) {
+			mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText()
+					.toString());
+		}
+		updateDialAndDeleteButtonEnabledState();
+	}
+
+	/**
+	 * Update the enabledness of the "Dial" and "Backspace" buttons if
+	 * applicable.
+	 */
+	private void updateDialAndDeleteButtonEnabledState() {
+		if (getActivity() == null) {
+			return;
+		}
+		final boolean digitsNotEmpty = !isDigitsEmpty();
+		mDelete.setEnabled(digitsNotEmpty);
 	}
 
 	@Override
@@ -354,6 +420,8 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public void onResume() {
 		super.onResume();
+		final MainActivity activity = (MainActivity) getActivity();
+		mDialpadQueryListener = activity;
 		mPressedDialpadKeys.clear();
 		final ContentResolver contentResolver = getActivity()
 				.getContentResolver();
@@ -402,5 +470,95 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 			}
 			mToneGenerator.stopTone();
 		}
+	}
+
+	/**
+	 * LinearLayout with getter and setter methods for the translationY property
+	 * using floats, for animation purposes.
+	 */
+	public static class DialpadSlidingLinearLayout extends LinearLayout {
+
+		public DialpadSlidingLinearLayout(Context context) {
+			super(context);
+		}
+
+		public DialpadSlidingLinearLayout(Context context, AttributeSet attrs) {
+			super(context, attrs);
+		}
+
+		public DialpadSlidingLinearLayout(Context context, AttributeSet attrs,
+				int defStyle) {
+			super(context, attrs, defStyle);
+		}
+
+		public float getYFraction() {
+			final int height = getHeight();
+			if (height == 0)
+				return 0;
+			return getTranslationY() / height;
+		}
+
+		public void setYFraction(float yFraction) {
+			setTranslationY(yFraction * getHeight());
+		}
+	}
+
+	/**
+	 * LinearLayout that always returns true for onHoverEvent callbacks, to fix
+	 * problems with accessibility due to the dialpad overlaying other
+	 * fragments.
+	 */
+	public static class HoverIgnoringLinearLayout extends LinearLayout {
+
+		public HoverIgnoringLinearLayout(Context context) {
+			super(context);
+		}
+
+		public HoverIgnoringLinearLayout(Context context, AttributeSet attrs) {
+			super(context, attrs);
+		}
+
+		public HoverIgnoringLinearLayout(Context context, AttributeSet attrs,
+				int defStyle) {
+			super(context, attrs, defStyle);
+		}
+
+		@Override
+		public boolean onHoverEvent(MotionEvent event) {
+			return true;
+		}
+	}
+
+	public void setAdjustTranslationForAnimation(boolean value) {
+		mAdjustTranslationForAnimation = value;
+	}
+
+	public void setYFraction(float yFraction) {
+		((DialpadSlidingLinearLayout) getView()).setYFraction(yFraction);
+	}
+
+	public void clearDialpad() {
+		mDigits.getText().clear();
+	}
+
+	public interface OnDialpadQueryChangedListener {
+		void onDialpadQueryChanged(String query);
+	}
+
+	/**
+	 * This interface allows the DialpadFragment to tell its hosting Activity
+	 * when and when not to display the "dial" button. While this is logically
+	 * part of the DialpadFragment, the need to have a particular kind of slick
+	 * animation puts the "dial" button in the parent.
+	 *
+	 * The parent calls dialButtonPressed() and optionsMenuInvoked() on the
+	 * dialpad fragment when appropriate.
+	 *
+	 * TODO: Refactor the app so this interchange is a bit cleaner.
+	 */
+	public interface HostInterface {
+		void setDialButtonEnabled(boolean enabled);
+
+		void setDialButtonContainerVisible(boolean visible);
 	}
 }
