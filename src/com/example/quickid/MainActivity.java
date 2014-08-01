@@ -1,20 +1,24 @@
 package com.example.quickid;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
-import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 public class MainActivity extends Activity {
 
 	private ContactAdapter adapter;
 	private ListView listView;
+	private DialpadFragment mDialpadFragment;
+	private ImageButton trigger;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +29,19 @@ public class MainActivity extends Activity {
 		loadContacts();
 		adapter.setContacts(AppApplication.AllContacts);
 		listView.setAdapter(adapter);
+
+		trigger = (ImageButton) findViewById(R.id.dialpad_button);
+		trigger.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mDialpadFragment = new DialpadFragment();
+				final FragmentTransaction ft = getFragmentManager()
+						.beginTransaction();
+				ft.add(R.id.diaPanel, mDialpadFragment);
+				ft.commit();
+			}
+		});
 	}
 
 	private void loadContacts() {
