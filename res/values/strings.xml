@@ -44,5 +44,6 @@
     <string name="action_menu_call_history_description" msgid="9018442816219748968">"通话记录"</string>
     <string name="action_menu_dialpad_button">dial pad</string>
     <string name="action_menu_overflow_description" msgid="2303272250613084574">"更多选项"</string>
+    <string name="title_activity_all_contact">AllContactActivity</string>
 
 </resources>

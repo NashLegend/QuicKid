@@ -23,13 +23,11 @@ public class MainActivity extends Activity implements OnClickListener,
 	private static final String TAG_DIALPAD_FRAGMENT = "dialpad";
 	private static final String TAG_RECENT_DIAL_FRAGMENT = "recent";
 	private static final String TAG_SEARCH_FRAGMENT = "search";
-	private static final String TAG_ALL_CONTACTS_FRAGMENT = "all";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		if (savedInstanceState == null) {
 			getFragmentManager()
 					.beginTransaction()

@@ -36,7 +36,7 @@ public class ContactView extends FrameLayout {
 	public void build() {
 		badge.assignContactUri(Contacts.getLookupUri(contact.getContactId(),
 				contact.getLookupKey()));
-		nameTextView.setText(contact.getDisplayName());
+		nameTextView.setText(contact.getName());
 		if (contact.hasNumber() > 0) {
 			phoneTextView.setText(contact.getPhones().get(0).phoneNumber);
 		}

@@ -5,18 +5,32 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import android.net.Uri;
+
 import com.example.quickid.Contact.phoneStruct;
 
 public class Contact {
 
-	private List<String> abbreviations = new ArrayList<String>();
 	private List<String> fullNames = new ArrayList<String>();
-	private String displayName = "";
+	private List<Integer> fullNameIntegers = new ArrayList<Integer>();
+	private String name = "";
 	private List<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
 	private long contactId = 0L;
 	private String lookupKey = "";
-	private String photoUri = "";
+	private String photoUri;
+	private Uri lookupUri;
 	private List<String> possibleStrings = new ArrayList<String>();
+
+	public int type;
+	public String label;
+	public String number;
+	public String formattedNumber;
+	public String normalizedNumber;
+	public long photoId;
+
+	public static String GEOCODE_AS_LABEL = "";
+
+	public int sourceType = 0;
 
 	public static class phoneStruct {
 		String phoneNumber;
@@ -36,11 +50,14 @@ public class Contact {
 
 	public void initPinyin() {
 		synchronized (AppApplication.globalApplication) {
-			String trimmed = displayName.replaceAll(" ", "");
-			abbreviations = AppApplication.hanyuPinyinHelper
-					.hanyuPinYinConvert(trimmed, true);
+			String trimmed = name.replaceAll(" ", "");
 			fullNames = AppApplication.hanyuPinyinHelper.hanyuPinYinConvert(
 					trimmed, false);
+			for (Iterator<Integer> iterator = fullNameIntegers.iterator(); iterator
+					.hasNext();) {
+				Integer integer = iterator.next();
+
+			}
 		}
 	}
 
@@ -99,15 +116,15 @@ public class Contact {
 		phones.add(pStruct);
 	}
 
-	public String getDisplayName() {
-		return displayName;
+	public String getName() {
+		return name;
 	}
 
-	public void setDisplayName(String displayName) {
+	public void setName(String displayName) {
 		if (displayName == null) {
 			displayName = "";
 		}
-		this.displayName = displayName;
+		this.name = displayName;
 		initPinyin();
 	}
 
@@ -125,14 +142,6 @@ public class Contact {
 
 	public void setLookupKey(String lookupKey) {
 		this.lookupKey = lookupKey;
-	}
-
-	public List<String> getAbbreviations() {
-		return abbreviations;
-	}
-
-	public void setAbbreviations(List<String> abbreviations) {
-		this.abbreviations = abbreviations;
 	}
 
 	public List<String> getFullNames() {
@@ -153,6 +162,14 @@ public class Contact {
 
 	public void setPhotoUri(String photoUri) {
 		this.photoUri = photoUri;
+	}
+
+	public Uri getLookupUri() {
+		return lookupUri;
+	}
+
+	public void setLookupUri(Uri lookupUri) {
+		this.lookupUri = lookupUri;
 	}
 
 }
