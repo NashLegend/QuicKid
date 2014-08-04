@@ -20,15 +20,15 @@ public class Contact {
 	private String photoUri;
 	private Uri lookupUri;
 	private List<String> possibleStrings = new ArrayList<String>();
-
+	
+	public int TIMES_CONTACTED = 0;
+	public long LAST_TIME_CONTACTED = 0l;
 	public int type;
 	public String label;
 	public String number;
 	public String formattedNumber;
 	public String normalizedNumber;
 	public long photoId;
-
-	public static String GEOCODE_AS_LABEL = "";
 
 	public int sourceType = 0;
 

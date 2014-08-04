@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
+import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
@@ -48,46 +49,45 @@ public class Util {
 		return list;
 	}
 
+	/**
+	 * 加载所有联系人
+	 */
 	synchronized public static void loadContacts() {
 		ArrayList<Contact> AllContacts = new ArrayList<Contact>();
-		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME_PRIMARY,
-				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI };
-		String order = Contacts.DISPLAY_NAME + " ASC";
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
-		Cursor cursor = resolver.query(Contacts.CONTENT_URI, projection, null,
-				null, order);
-		while (cursor.moveToNext()) {
-			Contact contact = new Contact();
-
-			long contractID = cursor.getInt(0);
-			String displayName = cursor.getString(1);
-			String lookupKey = cursor.getString(2);
-			String photoUri = cursor.getString(3);
-
-			contact.setContactId(contractID);
-			contact.setName(displayName);
-			contact.setLookupKey(lookupKey);
-			contact.setPhotoUri(photoUri);
-
-			String[] PROJECTION = { Phone.NUMBER, Phone.TYPE };
-			String SELECTION = Data.LOOKUP_KEY + " = ?" + " AND "
-					+ Data.MIMETYPE + " = " + "'" + Phone.CONTENT_ITEM_TYPE
-					+ "'";
-			String[] mSelectionArgs = { lookupKey };
-			Cursor cursor1 = resolver.query(Phone.CONTENT_URI, PROJECTION,
-					SELECTION, mSelectionArgs, null);
-			if (cursor1.moveToFirst()) {
-				do {
-					contact.addPhone(cursor1.getString(0), cursor1.getInt(1));
-				} while (cursor1.moveToNext());
-			} else {
-				// No Phone Number Found
-			}
-			cursor1.close();
-			AllContacts.add(contact);
+		String[] PROJECTION = { Contacts._ID, Contacts.DISPLAY_NAME_PRIMARY,
+				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
+				Phone.NUMBER, Phone.TYPE };
+		Cursor cursor = resolver.query(Phone.CONTENT_URI, PROJECTION, null,
+				null, Contacts.SORT_KEY_PRIMARY);
+		String preLookupKey = "";
+		Contact preContact = null;
+		if (cursor.moveToFirst()) {
+			do {
+				String lookupKey = cursor.getString(2);
+				long contractID = cursor.getInt(0);
+				String displayName = cursor.getString(1);
+				String photoUri = cursor.getString(3);
+				if (lookupKey.equals(preLookupKey) && preContact != null) {
+					preContact.addPhone(cursor.getString(0), cursor.getInt(1));
+				} else {
+					Contact contact = new Contact();
+					contact.setContactId(contractID);
+					contact.setName(displayName);
+					contact.setLookupKey(lookupKey);
+					contact.setPhotoUri(photoUri);
+					contact.addPhone(cursor.getString(0), cursor.getInt(1));
+					AllContacts.add(contact);
+					preLookupKey = lookupKey;
+					preContact = contact;
+				}
+			} while (cursor.moveToNext());
+		} else {
+			// No Phone Number Found
 		}
 		cursor.close();
+
 		AppApplication.AllContacts = AllContacts;
 		// TODO notify
 		Intent intent = new Intent();
@@ -95,6 +95,9 @@ public class Util {
 		AppApplication.globalApplication.sendBroadcast(intent);
 	}
 
+	/**
+	 * 加载通话记录
+	 */
 	synchronized public static void loadCallLogs() {
 		ArrayList<RecentContact> AllRecentContacts = new ArrayList<RecentContact>();
 		String[] projection = { Calls._ID, Calls.TYPE, Calls.CACHED_NAME,
@@ -135,8 +138,40 @@ public class Util {
 		AppApplication.globalApplication.sendBroadcast(intent);
 	}
 
+	/**
+	 * 加载最近联系人（和收藏联系人）
+	 */
+	public static void loadFrequent() {
+		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME_PRIMARY,
+				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
+				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED };
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		Cursor cursor = resolver.query(Contacts.CONTENT_STREQUENT_URI,
+				projection, null, null, null);
+		while (cursor.moveToNext()) {
+			Contact contact = new Contact();
+
+			long contractID = cursor.getInt(0);
+			String displayName = cursor.getString(1);
+			String lookupKey = cursor.getString(2);
+			String photoUri = cursor.getString(3);
+
+			contact.setContactId(contractID);
+			contact.setName(displayName);
+			contact.setLookupKey(lookupKey);
+			contact.setPhotoUri(photoUri);
+		}
+		cursor.close();
+	}
+
+	/**
+	 * 根据电话号码寻出联系人
+	 * 
+	 * @param contactNumber
+	 * @return
+	 */
 	public static Contact getContactByPhoneNumber(String contactNumber) {
-		final Contact info;
 		Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,
 				Uri.encode(contactNumber));
 		return lookupContactFromUri(uri);
@@ -159,6 +194,7 @@ public class Util {
 					info.setLookupUri(Contacts.getLookupUri(contactId,
 							lookupKey));
 					info.setName(phonesCursor.getString(PhoneQuery.NAME));
+
 					info.type = phonesCursor.getInt(PhoneQuery.PHONE_TYPE);
 					info.label = phonesCursor.getString(PhoneQuery.LABEL);
 					info.number = phonesCursor

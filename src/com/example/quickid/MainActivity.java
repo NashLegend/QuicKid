@@ -12,6 +12,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.ImageButton;
 
 public class MainActivity extends Activity implements OnClickListener,
@@ -27,11 +28,12 @@ public class MainActivity extends Activity implements OnClickListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		if (savedInstanceState == null) {
 			getFragmentManager()
 					.beginTransaction()
-					.add(R.id.layout_recent_dial, new RecentDialFragment(),
+					.add(R.id.layout_dial, new RecentDialFragment(),
 							TAG_RECENT_DIAL_FRAGMENT)
 					.add(R.id.layout_dialer_panel, new DialpadFragment(),
 							TAG_DIALPAD_FRAGMENT).commit();
@@ -63,12 +65,16 @@ public class MainActivity extends Activity implements OnClickListener,
 		// TODO
 	}
 
-	private void exitSearchUi() {
+	public void exitSearchUi() {
 		// TODO
 	}
 
-	private void showDialpad(boolean animate) {
+	public void showDialpad(boolean animate) {
+		// TODO 有一个bug，就是在hideDialpad动画没有完成之前就执行showDialpad的话，会导致永久hide
+		// 这个bug在系统的拨号App中同样存在
 		mDialpadFragment.setAdjustTranslationForAnimation(animate);
+		mDialpadButton.setVisibility(View.GONE);
+		mDialButton.setVisibility(View.VISIBLE);
 		final FragmentTransaction ft = getFragmentManager().beginTransaction();
 		if (animate) {
 			ft.setCustomAnimations(R.anim.slide_in, 0);
@@ -77,13 +83,13 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 		ft.show(mDialpadFragment);
 		ft.commit();
-		mDialButton.setVisibility(View.VISIBLE);
-		mDialpadButton.setVisibility(View.GONE);
 	}
 
-	private void hideDialpad(boolean animate, boolean clearDialpad) {
+	public void hideDialpad(boolean animate, boolean clearDialpad) {
 		if (mDialpadFragment == null)
 			return;
+		mDialButton.setVisibility(View.GONE);
+		mDialpadButton.setVisibility(View.VISIBLE);
 		if (clearDialpad) {
 			mDialpadFragment.clearDialpad();
 		}
@@ -96,8 +102,6 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 		ft.hide(mDialpadFragment);
 		ft.commit();
-		mDialButton.setVisibility(View.GONE);
-		mDialpadButton.setVisibility(View.VISIBLE);
 	}
 
 	@Override

@@ -49,11 +49,12 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	// This is the amount of screen the dialpad fragment takes up when fully
 	// displayed
 	private static final float DIALPAD_SLIDE_FRACTION = 0.67f;
+	private View mSpacer;
 
 	public DialpadFragment() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -107,6 +108,17 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 
 		mDialpad = fragmentView.findViewById(R.id.dialpad); // This is null in
 															// landscape mode.
+		mSpacer = fragmentView.findViewById(R.id.spacer);
+		mSpacer.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (isDigitsEmpty()) {
+					hideAndClearDialpad(true);
+					return true;
+				}
+				return false;
+			}
+		});
 
 		// In landscape we put the keyboard in phone mode.
 		if (null == mDialpad) {
@@ -116,6 +128,10 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		}
 
 		return fragmentView;
+	}
+
+	private void hideAndClearDialpad(boolean animate) {
+		((MainActivity) getActivity()).hideDialpad(animate, true);
 	}
 
 	private void setupKeypad(View fragmentView) {
@@ -499,6 +515,8 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		}
 
 		public void setYFraction(float yFraction) {
+			System.out.println(yFraction + " " + getHeight() + " " + yFraction
+					* getHeight());
 			setTranslationY(yFraction * getHeight());
 		}
 	}
