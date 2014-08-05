@@ -1,8 +1,10 @@
-package com.example.quickid;
+package com.example.quickid.service;
 
 import java.util.Timer;
 
 import com.example.legendutils.Tools.TimerUtil;
+import com.example.quickid.AppApplication;
+import com.example.quickid.util.Util;
 
 import android.app.Service;
 import android.content.ContentResolver;

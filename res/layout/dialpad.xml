@@ -11,7 +11,7 @@
     android:stretchColumns="*" >
 
     <TableRow>
-        <com.example.quickid.DialpadKeyButton
+        <com.example.quickid.view.DialpadKeyButton
             android:id="@+id/one"
             style="@style/DialpadKeyButtonStyle" >
 
@@ -28,7 +28,7 @@
                     android:scaleType="fitStart"
                     android:src="@drawable/ic_dial_action_vm" />
             </LinearLayout>
-        </com.example.quickid.DialpadKeyButton>
+        </com.example.quickid.view.DialpadKeyButton>
 
         <include
             android:id="@+id/two"
@@ -71,7 +71,7 @@
 
     <TableRow>
 
-        <com.example.quickid.DialpadKeyButton
+        <com.example.quickid.view.DialpadKeyButton
             android:id="@+id/star"
             style="@style/DialpadKeyButtonStyle" >
 
@@ -85,13 +85,13 @@
                     android:layout_width="@dimen/dialpad_key_letters_width"
                     android:layout_height="match_parent" />
             </LinearLayout>
-        </com.example.quickid.DialpadKeyButton>
+        </com.example.quickid.view.DialpadKeyButton>
 
         <include
             android:id="@+id/zero"
             layout="@layout/dialpad_key" />
 
-        <com.example.quickid.DialpadKeyButton
+        <com.example.quickid.view.DialpadKeyButton
             android:id="@+id/pound"
             style="@style/DialpadKeyButtonStyle" >
 
@@ -105,7 +105,7 @@
                     android:layout_width="@dimen/dialpad_key_letters_width"
                     android:layout_height="match_parent" />
             </LinearLayout>
-        </com.example.quickid.DialpadKeyButton>
+        </com.example.quickid.view.DialpadKeyButton>
     </TableRow>
 
 </TableLayout>

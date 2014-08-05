@@ -45,5 +45,6 @@
     <string name="action_menu_dialpad_button">dial pad</string>
     <string name="action_menu_overflow_description" msgid="2303272250613084574">"更多选项"</string>
     <string name="title_activity_all_contact">AllContactActivity</string>
+    <string name="title_activity_history_dial">HistoryDialActivity</string>
 
 </resources>

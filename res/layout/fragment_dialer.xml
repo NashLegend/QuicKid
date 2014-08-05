@@ -2,7 +2,7 @@
 <view xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    class="com.example.quickid.DialpadFragment$DialpadSlidingLinearLayout"
+    class="com.example.quickid.fragment.DialpadFragment$DialpadSlidingLinearLayout"
     android:orientation="vertical" >
 
     <!-- spacer view -->
@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        class="com.example.quickid.DialpadFragment$HoverIgnoringLinearLayout"
+        class="com.example.quickid.fragment.DialpadFragment$HoverIgnoringLinearLayout"
         android:animateLayoutChanges="true"
         android:background="@color/background_dialpad"
         android:layoutDirection="ltr"
@@ -56,7 +56,6 @@
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:background="@color/dialpad_separator_line_color" />
-
 
         <ListView
             android:id="@+id/dialpadChooser"

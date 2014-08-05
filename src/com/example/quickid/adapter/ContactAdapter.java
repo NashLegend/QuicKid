@@ -1,10 +1,14 @@
-package com.example.quickid;
+package com.example.quickid.adapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.example.quickid.model.Contact;
+import com.example.quickid.util.Util;
+import com.example.quickid.view.ContactView;
 
 import android.content.Context;
 import android.view.View;

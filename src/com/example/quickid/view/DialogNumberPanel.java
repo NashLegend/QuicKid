@@ -1,4 +1,4 @@
-package com.example.quickid;
+package com.example.quickid.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.quickid;
+package com.example.quickid.view;
 
 import android.content.Context;
 import android.graphics.Rect;

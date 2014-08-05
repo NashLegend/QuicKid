@@ -1,5 +1,6 @@
-package com.example.quickid;
+package com.example.quickid.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.res.Resources;
 import android.text.Editable;
@@ -8,14 +9,23 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-
 import java.util.HashSet;
-
+import com.example.quickid.MainActivity;
+import com.example.quickid.R;
+import com.example.quickid.R.id;
+import com.example.quickid.R.layout;
+import com.example.quickid.R.string;
+import com.example.quickid.interfacc.OnQueryContactListener;
+import com.example.quickid.model.Contact;
+import com.example.quickid.util.Util;
+import com.example.quickid.view.DialpadKeyButton;
+import com.example.quickid.view.DialpadKeyButton.OnPressedListener;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -32,7 +42,7 @@ import android.widget.TextView;
 public class DialpadFragment extends Fragment implements View.OnClickListener,
 		View.OnLongClickListener, View.OnKeyListener,
 		AdapterView.OnItemClickListener, TextWatcher,
-		PopupMenu.OnMenuItemClickListener, DialpadKeyButton.OnPressedListener {
+		DialpadKeyButton.OnPressedListener {
 
 	private View mDigitsContainer;
 	private EditText mDigits;
@@ -49,6 +59,7 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	// This is the amount of screen the dialpad fragment takes up when fully
 	// displayed
 	private static final float DIALPAD_SLIDE_FRACTION = 0.67f;
+	private static long vibrateDuration = 20;
 	private View mSpacer;
 
 	public DialpadFragment() {
@@ -71,7 +82,6 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 
 			@Override
 			public boolean onPreDraw() {
-
 				if (isHidden())
 					return true;
 				if (mAdjustTranslationForAnimation
@@ -106,10 +116,10 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 			mDelete.setOnLongClickListener(this);
 		}
 
-		mDialpad = fragmentView.findViewById(R.id.dialpad); // This is null in
-															// landscape mode.
+		mDialpad = fragmentView.findViewById(R.id.dialpad); 
 		mSpacer = fragmentView.findViewById(R.id.spacer);
 		mSpacer.setOnTouchListener(new View.OnTouchListener() {
+			@SuppressLint("ClickableViewAccessibility")
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (isDigitsEmpty()) {
@@ -229,7 +239,7 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		default:
 			break;
 		}
-
+		Util.vibrate(vibrateDuration);
 		KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
 		mDigits.onKeyDown(keyCode, event);
 
@@ -308,12 +318,6 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	}
 
 	@Override
-	public boolean onMenuItemClick(MenuItem item) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
 		// TODO Auto-generated method stub
@@ -324,32 +328,18 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		// TODO Auto-generated method stub
 	}
 
-	private boolean mDigitsFilledByIntent;
-	private OnDialpadQueryChangedListener mDialpadQueryListener;
+	private OnQueryContactListener mDialpadQueryListener;
 
 	@Override
 	public void afterTextChanged(Editable input) {
-		// When DTMF dialpad buttons are being pressed, we delay
-		// SpecialCharSequencMgr sequence,
-		// since some of SpecialCharSequenceMgr's behavior is too abrupt for the
-		// "touch-down"
-		// behavior.
-		if (!mDigitsFilledByIntent
-				&& SpecialCharSequenceMgr.handleChars(getActivity(),
-						input.toString(), mDigits)) {
-			// A special sequence was entered, clear the digits
-			mDigits.getText().clear();
-		}
 
 		if (isDigitsEmpty()) {
-			mDigitsFilledByIntent = false;
 			mDigits.setCursorVisible(false);
 		}
-
 		if (mDialpadQueryListener != null) {
-			mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText()
-					.toString());
+			mDialpadQueryListener.onQueryChanged(mDigits.getText().toString());
 		}
+
 		updateDialAndDeleteButtonEnabledState();
 	}
 
@@ -436,8 +426,6 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public void onResume() {
 		super.onResume();
-		final MainActivity activity = (MainActivity) getActivity();
-		mDialpadQueryListener = activity;
 		mPressedDialpadKeys.clear();
 		final ContentResolver contentResolver = getActivity()
 				.getContentResolver();
@@ -515,10 +503,12 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		}
 
 		public void setYFraction(float yFraction) {
-			System.out.println(yFraction + " " + getHeight() + " " + yFraction
-					* getHeight());
 			setTranslationY(yFraction * getHeight());
 		}
+	}
+
+	public interface OnDialpadQueryChangedListener {
+		void onDialpadQueryChanged(String query);
 	}
 
 	/**
@@ -557,10 +547,6 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 
 	public void clearDialpad() {
 		mDigits.getText().clear();
-	}
-
-	public interface OnDialpadQueryChangedListener {
-		void onDialpadQueryChanged(String query);
 	}
 
 	/**

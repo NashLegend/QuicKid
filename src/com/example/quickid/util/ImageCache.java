@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.quickid;
+package com.example.quickid.util;
+
+import com.example.quickid.BuildConfig;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;

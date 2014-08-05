@@ -1,4 +1,4 @@
-package com.example.quickid;
+package com.example.quickid.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,12 +7,14 @@ import java.util.List;
 
 import android.net.Uri;
 
-import com.example.quickid.Contact.phoneStruct;
+import com.example.legendutils.Tools.TextUtil;
+import com.example.quickid.AppApplication;
+import com.example.quickid.model.Contact.phoneStruct;
 
 public class Contact {
 
-	private List<String> fullNames = new ArrayList<String>();
-	private List<Integer> fullNameIntegers = new ArrayList<Integer>();
+	private List<String> fullNamesString = new ArrayList<String>();
+	private List<ArrayList<String>> fullNameNumber = new ArrayList<ArrayList<String>>();
 	private String name = "";
 	private List<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
 	private long contactId = 0L;
@@ -20,7 +22,7 @@ public class Contact {
 	private String photoUri;
 	private Uri lookupUri;
 	private List<String> possibleStrings = new ArrayList<String>();
-	
+
 	public int TIMES_CONTACTED = 0;
 	public long LAST_TIME_CONTACTED = 0l;
 	public int type;
@@ -33,9 +35,9 @@ public class Contact {
 	public int sourceType = 0;
 
 	public static class phoneStruct {
-		String phoneNumber;
-		int phoneType;
-		String displayType;
+		public String phoneNumber;
+		public int phoneType;
+		public String displayType;
 
 		public phoneStruct(String number, int type) {
 			phoneNumber = number;
@@ -48,17 +50,47 @@ public class Contact {
 
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Contact) {
+			if (getLookupKey().equals(((Contact) o).getLookupKey())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void initPinyin() {
 		synchronized (AppApplication.globalApplication) {
 			String trimmed = name.replaceAll(" ", "");
-			fullNames = AppApplication.hanyuPinyinHelper.hanyuPinYinConvert(
-					trimmed, false);
-			for (Iterator<Integer> iterator = fullNameIntegers.iterator(); iterator
+			fullNamesString = AppApplication.hanyuPinyinHelper
+					.hanyuPinYinConvert(trimmed, false);
+			System.out.println("*********************");
+			for (Iterator<String> iterator = fullNamesString.iterator(); iterator
 					.hasNext();) {
-				Integer integer = iterator.next();
-
+				String str = iterator.next();
+				ArrayList<String> lss = new ArrayList<String>();
+				String[] pinyins = TextUtil.splitIgnoringEmpty(str, " ");
+				for (int i = 0; i < pinyins.length; i++) {
+					String string = pinyins[i];
+					String res = convertString2Number(string);
+					System.out.println(res + " " + string);
+					lss.add(res);
+				}
+				fullNameNumber.add(lss);
 			}
 		}
+	}
+
+	public String convertString2Number(String str) {
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < str.length(); i++) {
+			Character ch = AppApplication.keyBoardMaps.get(str.charAt(i));
+			if (ch != null) {
+				sb.append(ch);
+			}
+		}
+		return sb.toString();
 	}
 
 	public int hasNumber() {
@@ -88,7 +120,7 @@ public class Contact {
 				}
 			}
 			if (!possible.contains("0") && !possible.contains("1")) {
-				for (Iterator<String> iterator3 = fullNames.iterator(); iterator3
+				for (Iterator<String> iterator3 = fullNamesString.iterator(); iterator3
 						.hasNext();) {
 					String string3 = (String) iterator3.next();
 					if (string3.contains(possible)) {
@@ -137,6 +169,9 @@ public class Contact {
 	}
 
 	public String getLookupKey() {
+		if (lookupKey == null) {
+			lookupKey = "";
+		}
 		return lookupKey;
 	}
 
@@ -145,7 +180,7 @@ public class Contact {
 	}
 
 	public List<String> getFullNames() {
-		return fullNames;
+		return fullNamesString;
 	}
 
 	public List<phoneStruct> getPhones() {

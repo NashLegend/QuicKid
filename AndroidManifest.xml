@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".AppApplication"
@@ -32,13 +33,17 @@
         </activity>
 
         <service
-            android:name=".ContactService"
+            android:name="com.example.quickid.service.ContactService"
             android:exported="false" >
         </service>
 
         <activity
             android:name=".AllContactActivity"
             android:label="@string/title_activity_all_contact" >
+        </activity>
+        <activity
+            android:name=".HistoryDialActivity"
+            android:label="@string/title_activity_history_dial" >
         </activity>
     </application>
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.quickid;
+package com.example.quickid.util;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -31,6 +31,8 @@ import android.widget.ImageView;
 
 import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;
+
+import com.example.quickid.BuildConfig;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading

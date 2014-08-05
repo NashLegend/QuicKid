@@ -1,4 +1,4 @@
-package com.example.quickid;
+package com.example.quickid.model;
 
 public class RecentContact {
 

@@ -1,12 +1,18 @@
-package com.example.quickid;
+package com.example.quickid.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.example.quickid.AppApplication;
+import com.example.quickid.model.Contact;
+import com.example.quickid.model.RecentContact;
+
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Vibrator;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -142,6 +148,7 @@ public class Util {
 	 * 加载最近联系人（和收藏联系人）
 	 */
 	public static void loadFrequent() {
+		ArrayList<Contact> FrequentContacts = new ArrayList<Contact>();
 		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME_PRIMARY,
 				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
 				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED };
@@ -156,13 +163,20 @@ public class Util {
 			String displayName = cursor.getString(1);
 			String lookupKey = cursor.getString(2);
 			String photoUri = cursor.getString(3);
-
+			int TIMES_CONTACTED = cursor.getInt(4);
+			long LAST_TIME_CONTACTED = cursor.getLong(5);
 			contact.setContactId(contractID);
 			contact.setName(displayName);
 			contact.setLookupKey(lookupKey);
 			contact.setPhotoUri(photoUri);
+
+			contact.TIMES_CONTACTED = TIMES_CONTACTED;
+			contact.LAST_TIME_CONTACTED = LAST_TIME_CONTACTED;
+			FrequentContacts.add(contact);
 		}
 		cursor.close();
+		AppApplication.FrequentContacts = FrequentContacts;
+		// notify
 	}
 
 	/**
@@ -233,6 +247,16 @@ public class Util {
 		public static final int PHOTO_ID = 6;
 		public static final int LOOKUP_KEY = 7;
 		public static final int PHOTO_URI = 8;
+	}
+
+	private static Vibrator vibrator;
+
+	public static void vibrate(long duaration) {
+		if (vibrator == null) {
+			vibrator = (Vibrator) AppApplication.globalApplication
+					.getSystemService(Context.VIBRATOR_SERVICE);
+		}
+		vibrator.vibrate(duaration);
 	}
 
 }

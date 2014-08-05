@@ -1,14 +1,15 @@
 package com.example.quickid;
 
-import com.example.quickid.DialpadFragment.OnDialpadQueryChangedListener;
+import com.example.quickid.fragment.DialpadFragment;
+import com.example.quickid.fragment.FrequentDialFragment;
+import com.example.quickid.fragment.SearchFragment;
+import com.example.quickid.fragment.DialpadFragment.OnDialpadQueryChangedListener;
+import com.example.quickid.util.Util;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,26 +20,31 @@ public class MainActivity extends Activity implements OnClickListener,
 		OnDialpadQueryChangedListener {
 
 	private DialpadFragment mDialpadFragment;
+	private FrequentDialFragment mFrequentDialFragment;
+	private SearchFragment mSearchFragment;
 	private ImageButton mDialpadButton;
 	private ImageButton mDialButton;
+	private ImageButton mHistoryButton;
+	private ImageButton mShowAllButton;
 	private static final String TAG_DIALPAD_FRAGMENT = "dialpad";
 	private static final String TAG_RECENT_DIAL_FRAGMENT = "recent";
 	private static final String TAG_SEARCH_FRAGMENT = "search";
+	private int currentStatus = 0;
+	private static int Status_Show_Frequent = 0;
+	private static int Status_Show_Search = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		if (savedInstanceState == null) {
 			getFragmentManager()
 					.beginTransaction()
-					.add(R.id.layout_dial, new RecentDialFragment(),
+					.add(R.id.layout_dial, new FrequentDialFragment(),
 							TAG_RECENT_DIAL_FRAGMENT)
 					.add(R.id.layout_dialer_panel, new DialpadFragment(),
 							TAG_DIALPAD_FRAGMENT).commit();
 		}
-
 		mDialpadButton = (ImageButton) findViewById(R.id.button_dialpad);
 		mDialButton = (ImageButton) findViewById(R.id.button_dial);
 		mDialButton.setOnClickListener(this);
@@ -53,6 +59,8 @@ public class MainActivity extends Activity implements OnClickListener,
 					.beginTransaction();
 			transaction.hide(mDialpadFragment);
 			transaction.commit();
+		} else if (fragment instanceof FrequentDialFragment) {
+			mFrequentDialFragment = (FrequentDialFragment) fragment;
 		}
 		super.onAttachFragment(fragment);
 	}
@@ -62,7 +70,24 @@ public class MainActivity extends Activity implements OnClickListener,
 	}
 
 	private void enterSearchUi() {
-		// TODO
+		final FragmentTransaction transaction = getFragmentManager()
+				.beginTransaction();
+
+		if (currentStatus == Status_Show_Frequent) {
+			transaction.remove(mFrequentDialFragment);
+		}
+
+		final String tag = TAG_SEARCH_FRAGMENT;
+
+		mSearchFragment = (SearchFragment) getFragmentManager()
+				.findFragmentByTag(tag);
+		if (mSearchFragment == null) {
+			mSearchFragment = new SearchFragment();
+		}
+		transaction.replace(R.id.layout_dial, mSearchFragment, tag);
+		transaction.addToBackStack(null);
+		transaction.commit();
+		currentStatus = Status_Show_Search;
 	}
 
 	public void exitSearchUi() {
@@ -129,6 +154,9 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onDialpadQueryChanged(String query) {
-
+		if (currentStatus == Status_Show_Frequent) {
+			enterSearchUi();
+		}
+		mSearchFragment.onQueryChanged(query);
 	}
 }

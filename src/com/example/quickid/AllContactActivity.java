@@ -1,6 +1,7 @@
 package com.example.quickid;
 
 import com.example.legendutils.Tools.ToastUtil;
+import com.example.quickid.util.Consts;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

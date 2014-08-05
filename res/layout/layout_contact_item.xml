@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:padding="8dp" >
 
     <QuickContactBadge
         android:id="@+id/badge_contact_item"
@@ -16,6 +17,7 @@
         android:id="@+id/layout_phone_numbers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:orientation="vertical" >
 
@@ -23,6 +25,7 @@
             android:id="@+id/text_contact_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:singleLine="true" />
 
         <TextView
