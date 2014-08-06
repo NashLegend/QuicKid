@@ -4,7 +4,7 @@ import com.example.quickid.AppApplication;
 import com.example.quickid.R;
 import com.example.quickid.R.layout;
 import com.example.quickid.adapter.ContactAdapter;
-import com.example.quickid.util.Util;
+import com.example.quickid.util.ContactHelper;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -37,7 +37,7 @@ public class FrequentDialFragment extends Fragment {
 	}
 
 	private void loadFrequent() {
-		Util.loadFrequent();
+		ContactHelper.loadFrequent();
 		adapter.setContacts(AppApplication.FrequentContacts);
 		adapter.notifyDataSetChanged();
 	}

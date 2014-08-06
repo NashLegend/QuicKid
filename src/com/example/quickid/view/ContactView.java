@@ -1,16 +1,18 @@
 package com.example.quickid.view;
 
 import java.io.InputStream;
-
 import com.example.quickid.AppApplication;
 import com.example.quickid.R;
 import com.example.quickid.model.Contact;
 import com.example.quickid.util.IconContainer;
-
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
@@ -71,7 +73,33 @@ public class ContactView extends FrameLayout {
 			} else {
 				badge.setImageBitmap(bmp);
 			}
+		} else {
+			setDefaultAvatar();
 		}
+	}
+
+	private static TypedArray sColors;
+	private static int sDefaultColor;
+	private static final int NUM_OF_TILE_COLORS = 8;
+
+	@SuppressLint("Recycle")
+	private void setDefaultAvatar() {
+		if (sColors == null) {
+			sColors = getResources().obtainTypedArray(
+					R.array.letter_tile_colors);
+			sDefaultColor = getResources().getColor(
+					R.color.letter_tile_default_color);
+		}
+		badge.setBackgroundColor(pickColor(contact.getName()));
+		badge.setImageResource(R.drawable.ic_list_item_avatar);
+	}
+
+	private int pickColor(final String identifier) {
+		if (TextUtils.isEmpty(identifier)) {
+			return sDefaultColor;
+		}
+		final int color = Math.abs(identifier.hashCode()) % NUM_OF_TILE_COLORS;
+		return sColors.getColor(color, sDefaultColor);
 	}
 
 	public void setContact(Contact contact) {
@@ -106,7 +134,7 @@ public class ContactView extends FrameLayout {
 				if (result != null) {
 					badge.setImageBitmap(result);
 				} else {
-					// badge.setImageResource(fileItem.getIcon());
+					badge.setImageResource(R.drawable.ic_list_item_avatar);
 				}
 			}
 			super.onPostExecute(result);

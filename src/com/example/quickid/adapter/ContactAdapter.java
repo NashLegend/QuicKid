@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.quickid.model.Contact;
-import com.example.quickid.util.Util;
+import com.example.quickid.util.ContactHelper;
 import com.example.quickid.view.ContactView;
 
 import android.content.Context;
@@ -95,14 +95,5 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 
 	public void setContacts(ArrayList<Contact> contacts) {
 		this.contacts = contacts;
-		long tick = System.currentTimeMillis();
-		List<String> poss = Util.getPossibleKeys("726");
-		for (Iterator<Contact> iterator = contacts.iterator(); iterator
-				.hasNext();) {
-			Contact contact = iterator.next();
-			contact.setPossibleStrings(poss);
-			contact.match();
-		}
-		System.out.println(System.currentTimeMillis() - tick);
 	}
 }

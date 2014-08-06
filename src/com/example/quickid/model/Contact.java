@@ -14,6 +14,7 @@ import com.example.quickid.model.Contact.phoneStruct;
 public class Contact {
 
 	private List<String> fullNamesString = new ArrayList<String>();
+	private List<String> abbreviationStrings = new ArrayList<String>();
 	private List<ArrayList<String>> fullNameNumber = new ArrayList<ArrayList<String>>();
 	private String name = "";
 	private List<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
@@ -21,7 +22,6 @@ public class Contact {
 	private String lookupKey = "";
 	private String photoUri;
 	private Uri lookupUri;
-	private List<String> possibleStrings = new ArrayList<String>();
 
 	public int TIMES_CONTACTED = 0;
 	public long LAST_TIME_CONTACTED = 0l;
@@ -33,6 +33,17 @@ public class Contact {
 	public long photoId;
 
 	public int sourceType = 0;
+
+	private int matchLevel = 0;
+	public static final int Match_Level_None = 0;
+	public static final int Match_Level_Headless = 100;
+	public static final int Match_Level_Back = 200;
+	public static final int Match_Level_Front = 300;
+	public static final int Match_Level_Complete = 400;
+	public static final int Match_Score_Reward = 1;
+	public static final float Match_Miss_Punish = 0.01f;
+	public static final int Max_Reward_Times = 99;
+	public static final int Max_Punish_Times = 99;
 
 	public static class phoneStruct {
 		public String phoneNumber;
@@ -65,7 +76,6 @@ public class Contact {
 			String trimmed = name.replaceAll(" ", "");
 			fullNamesString = AppApplication.hanyuPinyinHelper
 					.hanyuPinYinConvert(trimmed, false);
-			System.out.println("*********************");
 			for (Iterator<String> iterator = fullNamesString.iterator(); iterator
 					.hasNext();) {
 				String str = iterator.next();
@@ -74,7 +84,6 @@ public class Contact {
 				for (int i = 0; i < pinyins.length; i++) {
 					String string = pinyins[i];
 					String res = convertString2Number(string);
-					System.out.println(res + " " + string);
 					lss.add(res);
 				}
 				fullNameNumber.add(lss);
@@ -102,45 +111,158 @@ public class Contact {
 	 *            a String of 0-9
 	 * @return
 	 */
-	public int match() {
-		int degree = -1000;
-		String matchedString = "";
-		for (Iterator<String> iterator = possibleStrings.iterator(); iterator
-				.hasNext();) {
-			String possible = (String) iterator.next();
-			for (Iterator<phoneStruct> iterator2 = phones.iterator(); iterator2
-					.hasNext();) {
-				String string2 = iterator2.next().phoneNumber;
-				if (string2.contains(possible)) {
-					int ind = -string2.indexOf(possible);
-					if (degree < ind) {
-						matchedString = string2;
-						degree = ind;
-					}
-				}
-			}
-			if (!possible.contains("0") && !possible.contains("1")) {
-				for (Iterator<String> iterator3 = fullNamesString.iterator(); iterator3
-						.hasNext();) {
-					String string3 = (String) iterator3.next();
-					if (string3.contains(possible)) {
-						int ind = -string3.indexOf(possible);
-						if (degree < ind) {
-							matchedString = string3;
-							degree = ind;
-						}
-					}
-				}
-			}
-		}
-		if (degree != -1000) {
-			System.out.println(matchedString + "_" + degree);
+	public float match(String reg) {
+		float degree = 0f;
+		if ((degree = completeMatch(reg)) > 0) {
+
+		} else if ((degree = foreAcronymCompleteMatch(reg)) > 0) {
+
+		} else if ((degree = foreAcronymOverFlowMatch(reg)) > 0) {
+
+		} else if ((degree = foreParagraphCompleteMatch(reg)) > 0) {
+
+		} else if ((degree = backAcronymCompleteMatch(reg)) > 0) {
+
+		} else if ((degree = backAcronymOverFlowMatch(reg)) > 0) {
+
+		} else if ((degree = backParagraphCompleteMatch(reg)) > 0) {
+
+		} else if ((degree = backHeadlessParagraphMatch(reg)) > 0) {
+
+		} else {
+			degree = 0;
 		}
 		return degree;
 	}
 
-	public void setPossibleStrings(List<String> lss) {
-		possibleStrings = lss;
+	private float completeMatch(String reg) {
+		for (Iterator<String> iterator = fullNamesString.iterator(); iterator
+				.hasNext();) {
+			String str = iterator.next();
+			if (reg.equals(str)) {
+				return Match_Level_Complete;
+			}
+		}
+		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
+				.hasNext();) {
+			phoneStruct phone = iterator.next();
+			if (reg.equals(phone.phoneNumber)) {
+				return Match_Level_Complete;
+			}
+		}
+		return 0;
+	}
+
+	private float foreAcronymCompleteMatch(String reg) {
+		int punish = 10000;
+		String matched = "";
+		boolean hasMatch = false;
+		for (Iterator<String> iterator = abbreviationStrings.iterator(); iterator
+				.hasNext();) {
+			String str = iterator.next();
+			if (str.startsWith(reg)) {
+				hasMatch = true;
+				int diff = str.length() - reg.length();
+				if (diff < punish) {
+					punish = diff;
+					matched = str;
+				}
+			}
+		}
+		if (hasMatch) {
+			return Match_Level_Front + 2 - punish + Match_Miss_Punish;
+		}
+		return 0;
+	}
+
+	private float foreAcronymOverFlowMatch(String reg) {
+		// TODO
+		return 0;
+	}
+
+	/**
+	 * @param reg
+	 * @return
+	 * 
+	 * @deprecated
+	 */
+	private float foreParagraphCompleteMatch(String reg) {
+		return 0;
+	}
+
+	private float backAcronymCompleteMatch(String reg) {
+		int punish = 10000;
+		String matched = "";
+		boolean hasMatch = false;
+		for (Iterator<String> iterator = abbreviationStrings.iterator(); iterator
+				.hasNext();) {
+			String str = iterator.next();
+			// 在backAcronymCompleteMatch之前肯定先调用了foreAcronymCompleteMatch()
+			// 而走到这一步说明str.startsWith(reg)是不可能的,所以直接contains()就可以了
+			if (str.contains(reg)) {
+				hasMatch = true;
+				int diff = str.length() - reg.length();
+				if (diff < punish) {
+					punish = diff;
+					matched = str;
+				}
+			}
+		}
+		if (hasMatch) {
+			return Match_Level_Back + 2 - punish + Match_Miss_Punish;
+		}
+		return 0;
+	}
+
+	private float backAcronymOverFlowMatch(String reg) {
+		return 0;
+	}
+
+	/**
+	 * @param reg
+	 * @return
+	 * 
+	 * @deprecated
+	 */
+	private float backParagraphCompleteMatch(String reg) {
+		return 0;
+	}
+
+	private float backHeadlessParagraphMatch(String reg) {
+		int score = 0;
+		int punish = 0;
+		String matched = "";
+		for (Iterator<String> iterator = fullNamesString.iterator(); iterator
+				.hasNext();) {
+			String str = iterator.next();
+			// 不可能等于0
+			int sco = -1;
+			if ((score = str.indexOf(reg)) > 0) {
+				if (score < sco) {
+					score = sco;
+					matched = str;
+				}
+				punish = str.length() - reg.length();
+			}
+		}
+		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
+				.hasNext();) {
+			phoneStruct phone = iterator.next();
+			// 不可能等于0
+			int sco = -1;
+			if ((score = phone.phoneNumber.indexOf(reg)) > 0) {
+				if (score < sco) {
+					score = sco;
+					matched = phone.phoneNumber;
+				}
+				punish = phone.phoneNumber.length() - reg.length();
+			}
+		}
+		if (score > 0) {
+			return Match_Level_Headless + score * Match_Score_Reward - punish
+					* Match_Miss_Punish;
+		}
+		return 0;
 	}
 
 	public void addPhone(String number, int type) {

@@ -4,20 +4,24 @@ import com.example.quickid.fragment.DialpadFragment;
 import com.example.quickid.fragment.FrequentDialFragment;
 import com.example.quickid.fragment.SearchFragment;
 import com.example.quickid.fragment.DialpadFragment.OnDialpadQueryChangedListener;
-import com.example.quickid.util.Util;
+import com.example.quickid.interfacc.OnListFragmentScrolledListener;
+import com.example.quickid.util.ContactHelper;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ImageButton;
+import android.widget.AbsListView.OnScrollListener;
 
 public class MainActivity extends Activity implements OnClickListener,
-		OnDialpadQueryChangedListener {
+		OnListFragmentScrolledListener, OnDialpadQueryChangedListener {
 
 	private DialpadFragment mDialpadFragment;
 	private FrequentDialFragment mFrequentDialFragment;
@@ -91,7 +95,9 @@ public class MainActivity extends Activity implements OnClickListener,
 	}
 
 	public void exitSearchUi() {
-		// TODO
+		getFragmentManager().popBackStack(0,
+				FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		currentStatus = Status_Show_Frequent;
 	}
 
 	public void showDialpad(boolean animate) {
@@ -135,6 +141,12 @@ public class MainActivity extends Activity implements OnClickListener,
 			hideDialpad(true, false);
 			return;
 		}
+		if (currentStatus == Status_Show_Search) {
+			mDialpadFragment.clearDialpad();
+			currentStatus = Status_Show_Frequent;
+			return;
+		}
+
 		moveTaskToBack(false);
 	}
 
@@ -154,9 +166,21 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onDialpadQueryChanged(String query) {
-		if (currentStatus == Status_Show_Frequent) {
-			enterSearchUi();
+		if (TextUtils.isEmpty(query) && currentStatus == Status_Show_Search) {
+			exitSearchUi();
+		} else {
+			if (currentStatus == Status_Show_Frequent) {
+				enterSearchUi();
+			}
+			mSearchFragment.onQueryChanged(query);
 		}
-		mSearchFragment.onQueryChanged(query);
+
+	}
+
+	@Override
+	public void onListFragmentScrollStateChange(int scrollState) {
+		if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+			hideDialpad(true, false);
+		}
 	}
 }

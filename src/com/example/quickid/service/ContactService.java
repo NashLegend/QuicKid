@@ -4,7 +4,7 @@ import java.util.Timer;
 
 import com.example.legendutils.Tools.TimerUtil;
 import com.example.quickid.AppApplication;
-import com.example.quickid.util.Util;
+import com.example.quickid.util.ContactHelper;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -65,7 +65,7 @@ public class ContactService extends Service {
 
 		@Override
 		public void run() {
-			Util.loadCallLogs();
+			ContactHelper.loadCallLogs();
 		}
 	};
 

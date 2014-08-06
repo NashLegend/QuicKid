@@ -6,26 +6,20 @@ import android.content.res.Resources;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+
 import java.util.HashSet;
+
 import com.example.quickid.MainActivity;
 import com.example.quickid.R;
-import com.example.quickid.R.id;
-import com.example.quickid.R.layout;
-import com.example.quickid.R.string;
-import com.example.quickid.interfacc.OnQueryContactListener;
-import com.example.quickid.model.Contact;
-import com.example.quickid.util.Util;
+import com.example.quickid.util.ContactHelper;
 import com.example.quickid.view.DialpadKeyButton;
-import com.example.quickid.view.DialpadKeyButton.OnPressedListener;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -40,11 +34,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class DialpadFragment extends Fragment implements View.OnClickListener,
-		View.OnLongClickListener, View.OnKeyListener,
-		AdapterView.OnItemClickListener, TextWatcher,
+		View.OnLongClickListener, View.OnKeyListener, TextWatcher,
 		DialpadKeyButton.OnPressedListener {
 
-	private View mDigitsContainer;
 	private EditText mDigits;
 	private ToneGenerator mToneGenerator;
 	private final Object mToneGeneratorLock = new Object();
@@ -56,14 +48,11 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	private static final int TONE_LENGTH_INFINITE = -1;
 	private static final int TONE_RELATIVE_VOLUME = 80;
 	private static final int DIAL_TONE_STREAM_TYPE = AudioManager.STREAM_DTMF;
-	// This is the amount of screen the dialpad fragment takes up when fully
-	// displayed
 	private static final float DIALPAD_SLIDE_FRACTION = 0.67f;
 	private static long vibrateDuration = 20;
 	private View mSpacer;
 
 	public DialpadFragment() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -116,7 +105,7 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 			mDelete.setOnLongClickListener(this);
 		}
 
-		mDialpad = fragmentView.findViewById(R.id.dialpad); 
+		mDialpad = fragmentView.findViewById(R.id.dialpad);
 		mSpacer = fragmentView.findViewById(R.id.spacer);
 		mSpacer.setOnTouchListener(new View.OnTouchListener() {
 			@SuppressLint("ClickableViewAccessibility")
@@ -239,7 +228,7 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		default:
 			break;
 		}
-		Util.vibrate(vibrateDuration);
+		ContactHelper.vibrate(vibrateDuration);
 		KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
 		mDigits.onKeyDown(keyCode, event);
 
@@ -320,26 +309,27 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
-	private OnQueryContactListener mDialpadQueryListener;
+	private OnDialpadQueryChangedListener mDialpadQueryListener;
 
 	@Override
 	public void afterTextChanged(Editable input) {
-
 		if (isDigitsEmpty()) {
 			mDigits.setCursorVisible(false);
 		}
 		if (mDialpadQueryListener != null) {
-			mDialpadQueryListener.onQueryChanged(mDigits.getText().toString());
+			mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText()
+					.toString());
+		} else {
+			System.out.println("Oops");
 		}
-
 		updateDialAndDeleteButtonEnabledState();
 	}
 
@@ -353,12 +343,6 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		}
 		final boolean digitsNotEmpty = !isDigitsEmpty();
 		mDelete.setEnabled(digitsNotEmpty);
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -427,6 +411,10 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 	public void onResume() {
 		super.onResume();
 		mPressedDialpadKeys.clear();
+
+		final MainActivity activity = (MainActivity) getActivity();
+		mDialpadQueryListener = activity;
+
 		final ContentResolver contentResolver = getActivity()
 				.getContentResolver();
 		mDTMFToneEnabled = Settings.System.getInt(contentResolver,
@@ -447,21 +435,22 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		if (!mDTMFToneEnabled) {
 			return;
 		}
-		AudioManager audioManager = (AudioManager) getActivity()
-				.getSystemService(Context.AUDIO_SERVICE);
-		int ringerMode = audioManager.getRingerMode();
-		if ((ringerMode == AudioManager.RINGER_MODE_SILENT)
-				|| (ringerMode == AudioManager.RINGER_MODE_VIBRATE)) {
-			return;
-		}
-
-		synchronized (mToneGeneratorLock) {
-			if (mToneGenerator == null) {
-				return;
-			}
-
-			mToneGenerator.startTone(tone, durationMs);
-		}
+		// TODO to resume
+		// AudioManager audioManager = (AudioManager) getActivity()
+		// .getSystemService(Context.AUDIO_SERVICE);
+		// int ringerMode = audioManager.getRingerMode();
+		// if ((ringerMode == AudioManager.RINGER_MODE_SILENT)
+		// || (ringerMode == AudioManager.RINGER_MODE_VIBRATE)) {
+		// return;
+		// }
+		//
+		// synchronized (mToneGeneratorLock) {
+		// if (mToneGenerator == null) {
+		// return;
+		// }
+		//
+		// mToneGenerator.startTone(tone, durationMs);
+		// }
 	}
 
 	private void stopTone() {

@@ -7,11 +7,11 @@
 
     <QuickContactBadge
         android:id="@+id/badge_contact_item"
+        android:background="#fff000"
         style="@style/quickContactBadgeStyle"
         android:layout_width="?android:attr/listPreferredItemHeight"
         android:layout_height="?android:attr/listPreferredItemHeight"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_contact_picture_holo_light" />
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:id="@+id/layout_phone_numbers"

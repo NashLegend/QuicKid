@@ -7,7 +7,6 @@ import com.example.quickid.model.Contact;
 import com.example.quickid.model.RecentContact;
 import com.example.quickid.service.ContactService;
 import com.example.quickid.util.HanyuPinyinHelper;
-import com.example.quickid.util.ImageLoader;
 
 import android.app.Application;
 import android.content.ContentResolver;
@@ -22,7 +21,6 @@ public class AppApplication extends Application {
 	public static ContentResolver contentResolver;
 	public static HashMap<Character, String[]> keyMaps;
 	public static HashMap<Character, Character> keyBoardMaps;
-	public static ImageLoader imageLoader;
 
 	public AppApplication() {
 
