@@ -6,16 +6,26 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.example.legendutils.Tools.TextUtil;
 import com.example.quickid.AppApplication;
 import com.example.quickid.model.Contact.phoneStruct;
 
+/**
+ * 毫无疑问，现在的匹配算法是愚蠢和原始的
+ * 
+ * @author Pan
+ *
+ */
 public class Contact {
 
-	private List<String> fullNamesString = new ArrayList<String>();
+	private List<String> fullNamesString = new ArrayList<String>();// String是带空格的
 	private List<String> abbreviationStrings = new ArrayList<String>();
 	private List<ArrayList<String>> fullNameNumber = new ArrayList<ArrayList<String>>();
+	private List<String> fullNameNumberWithoutSpace = new ArrayList<String>();
+	private List<String> abbreviationNumber = new ArrayList<String>();
+	// 以上三个列表在绝大多数情况下长度为一
 	private String name = "";
 	private List<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
 	private long contactId = 0L;
@@ -37,9 +47,11 @@ public class Contact {
 	private int matchLevel = 0;
 	public static final int Match_Level_None = 0;
 	public static final int Match_Level_Headless = 100;
-	public static final int Match_Level_Back = 200;
-	public static final int Match_Level_Front = 300;
-	public static final int Match_Level_Complete = 400;
+	public static final int Match_Level_Back_Acronym_Overflow = 200;
+	public static final int Match_Level_Back_Acronym_Complete = 300;
+	public static final int Match_Level_Fore_Acronym_Overflow = 400;
+	public static final int Match_Level_Fore_Acronym_Complete = 500;
+	public static final int Match_Level_Complete = 600;
 	public static final int Match_Score_Reward = 1;
 	public static final float Match_Miss_Punish = 0.01f;
 	public static final int Max_Reward_Times = 99;
@@ -51,6 +63,7 @@ public class Contact {
 		public String displayType;
 
 		public phoneStruct(String number, int type) {
+			number.replaceFirst("^\\+86", "");
 			phoneNumber = number;
 			phoneType = type;
 
@@ -81,11 +94,18 @@ public class Contact {
 				String str = iterator.next();
 				ArrayList<String> lss = new ArrayList<String>();
 				String[] pinyins = TextUtil.splitIgnoringEmpty(str, " ");
+				String abbra = "";
+				String fullNameNumberWithoutSpaceString = "";
 				for (int i = 0; i < pinyins.length; i++) {
 					String string = pinyins[i];
 					String res = convertString2Number(string);
+					abbra += res.charAt(0);
+					fullNameNumberWithoutSpaceString += res;
 					lss.add(res);
 				}
+				abbreviationNumber.add(abbra);
+				fullNameNumberWithoutSpace
+						.add(fullNameNumberWithoutSpaceString);
 				fullNameNumber.add(lss);
 			}
 		}
@@ -112,31 +132,63 @@ public class Contact {
 	 * @return
 	 */
 	public float match(String reg) {
-		float degree = 0f;
-		if ((degree = completeMatch(reg)) > 0) {
-
-		} else if ((degree = foreAcronymCompleteMatch(reg)) > 0) {
-
-		} else if ((degree = foreAcronymOverFlowMatch(reg)) > 0) {
-
-		} else if ((degree = foreParagraphCompleteMatch(reg)) > 0) {
-
-		} else if ((degree = backAcronymCompleteMatch(reg)) > 0) {
-
-		} else if ((degree = backAcronymOverFlowMatch(reg)) > 0) {
-
-		} else if ((degree = backParagraphCompleteMatch(reg)) > 0) {
-
-		} else if ((degree = backHeadlessParagraphMatch(reg)) > 0) {
-
-		} else {
-			degree = 0;
+		// 无法通过第一个字母来判断是不是后置匹配
+		// 但是可以通过第一个字母判断是不是前置匹配
+		// match的原则是匹配尽可能多的字符
+		if (TextUtils.isEmpty(reg)) {
+			return 0;
 		}
+		float degree = 0f;
+		if (canPrematch(reg)) {
+			if ((degree = completeMatch(reg)) > 0) {
+				// return this degree
+			} else if ((degree = foreAcronymCompleteMatch(reg)) > 0) {
+				// return this degree
+			} else if ((degree = foreAcronymOverFlowMatch(reg)) > 0) {
+				// return this degree
+			}
+		} else {
+			if ((degree = backAcronymCompleteMatch(reg)) > 0) {
+				// return this degree
+			} else if ((degree = backAcronymOverFlowMatch(reg)) > 0) {
+				// return this degree
+			} else if ((degree = backHeadlessParagraphMatch(reg)) > 0) {
+				// return this degree
+			} else {
+				degree = 0;
+			}
+		}
+
 		return degree;
 	}
 
+	/**
+	 * 判断是否可以是前置匹配。可以是前置匹配不意味着一定是，这里只检测第一个字母。
+	 * 因为在大部分情况下，大多数联系人是不可能前置匹配的，在这样的情况下如果仍然先挨个检查四个前置匹配明显是不明智的
+	 * 
+	 * @return
+	 */
+	private boolean canPrematch(String reg) {
+		char ch = reg.charAt(0);
+		for (Iterator<String> iterator = abbreviationNumber.iterator(); iterator
+				.hasNext();) {
+			String string = (String) iterator.next();
+			if (ch == string.charAt(0)) {
+				return true;
+			}
+		}
+		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
+				.hasNext();) {
+			phoneStruct phone = iterator.next();
+			if (ch == phone.phoneNumber.charAt(0)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private float completeMatch(String reg) {
-		for (Iterator<String> iterator = fullNamesString.iterator(); iterator
+		for (Iterator<String> iterator = fullNameNumberWithoutSpace.iterator(); iterator
 				.hasNext();) {
 			String str = iterator.next();
 			if (reg.equals(str)) {
@@ -157,7 +209,7 @@ public class Contact {
 		int punish = 10000;
 		String matched = "";
 		boolean hasMatch = false;
-		for (Iterator<String> iterator = abbreviationStrings.iterator(); iterator
+		for (Iterator<String> iterator = abbreviationNumber.iterator(); iterator
 				.hasNext();) {
 			String str = iterator.next();
 			if (str.startsWith(reg)) {
@@ -170,31 +222,88 @@ public class Contact {
 			}
 		}
 		if (hasMatch) {
-			return Match_Level_Front + 2 - punish + Match_Miss_Punish;
+			return Match_Level_Fore_Acronym_Complete - punish
+					* Match_Miss_Punish;
 		}
 		return 0;
 	}
 
 	private float foreAcronymOverFlowMatch(String reg) {
 		// TODO
+		float score = 0f;
+		for (Iterator<ArrayList<String>> iterator = fullNameNumber.iterator(); iterator
+				.hasNext();) {
+			ArrayList<String> names = iterator.next();
+			float tmp = foreAcronymOverFlowMatch(names, reg);
+			if (tmp > score) {
+				score = tmp;
+			}
+		}
+		return score;
+	}
+
+	// 在第一个字母确定的情况下，第二个字母有可能有三种情况
+	// 一、在第一个字母所在单词的邻居位置charAt(x+1);
+	// 二、在第二个单词的首字母处
+	// 三、以上两种情况皆不符合，不匹配，出局
+
+	private float foreAcronymOverFlowMatch(ArrayList<String> names, String reg) {
+		// TODO
+		if (names.get(0).charAt(0) == reg.charAt(0)) {
+			int cross = crossWords(names, reg, 0, 0, 0);
+			return Match_Level_Back_Acronym_Overflow + cross
+					* Match_Score_Reward - (names.size() - cross)
+					* Match_Miss_Punish;
+		}
 		return 0;
 	}
 
 	/**
-	 * @param reg
-	 * @return
+	 * 返回一串字符能跨越另一串字符的长度，若要保证能跨越最长的长度，只要保证下一个字符能跨越最长的长度即可，这就构成了一个递归
 	 * 
-	 * @deprecated
+	 * @param names
+	 * @param listIndex
+	 *            ，匹配到的list的第M个单词
+	 * @param strIndex
+	 *            ，匹配到第M个单词中的第N个index
+	 * @param regIndex
+	 *            regchar的匹配位置
+	 * @return
 	 */
-	private float foreParagraphCompleteMatch(String reg) {
-		return 0;
+	private int crossWords(ArrayList<String> names, String regString,
+			int listIndex, int strIndex, int regIndex) {
+		boolean canGoNextWord = false;
+		boolean canStayReser = false;
+		int reser = 0;
+		int impul = 0;
+		if (regIndex < regString.length() - 1) {
+			// regString尚未走到尽头
+			char nextChar = regString.charAt(regIndex + 1);
+			if (listIndex < names.size() - 1
+					&& nextChar == names.get(listIndex + 1).charAt(0)) {
+				canGoNextWord = true;
+			}
+
+			if (strIndex < names.get(listIndex).length()
+					&& nextChar == names.get(listIndex).charAt(strIndex + 1)) {
+				canStayReser = true;
+			}
+		}
+		if (canStayReser) {
+			reser = crossWords(names, regString, listIndex, strIndex,
+					regIndex + 1);
+		}
+		if (canGoNextWord) {
+			impul = crossWords(names, regString, listIndex, -1, regIndex + 1);
+		}
+		return ((strIndex == 0) ? 1 : 0) + Math.max(reser, impul);
 	}
 
 	private float backAcronymCompleteMatch(String reg) {
 		int punish = 10000;
 		String matched = "";
 		boolean hasMatch = false;
-		for (Iterator<String> iterator = abbreviationStrings.iterator(); iterator
+		for (Iterator<String> iterator = abbreviationNumber.iterator(); iterator
 				.hasNext();) {
 			String str = iterator.next();
 			// 在backAcronymCompleteMatch之前肯定先调用了foreAcronymCompleteMatch()
@@ -209,7 +318,8 @@ public class Contact {
 			}
 		}
 		if (hasMatch) {
-			return Match_Level_Back + 2 - punish + Match_Miss_Punish;
+			return Match_Level_Back_Acronym_Complete - punish
+					* Match_Miss_Punish;
 		}
 		return 0;
 	}
@@ -218,21 +328,11 @@ public class Contact {
 		return 0;
 	}
 
-	/**
-	 * @param reg
-	 * @return
-	 * 
-	 * @deprecated
-	 */
-	private float backParagraphCompleteMatch(String reg) {
-		return 0;
-	}
-
 	private float backHeadlessParagraphMatch(String reg) {
 		int score = 0;
 		int punish = 0;
 		String matched = "";
-		for (Iterator<String> iterator = fullNamesString.iterator(); iterator
+		for (Iterator<String> iterator = fullNameNumberWithoutSpace.iterator(); iterator
 				.hasNext();) {
 			String str = iterator.next();
 			// 不可能等于0
