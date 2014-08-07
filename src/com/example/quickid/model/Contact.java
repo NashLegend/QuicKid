@@ -42,18 +42,15 @@ public class Contact {
 
 	public int sourceType = 0;
 
-	private int matchLevel = 0;
 	public static final int Match_Level_None = 0;
-	public static final int Match_Level_Headless = 100;
-	public static final int Match_Level_Back_Acronym_Overflow = 200;
-	public static final int Match_Level_Back_Acronym_Complete = 300;
-	public static final int Match_Level_Fore_Acronym_Overflow = 400;
-	public static final int Match_Level_Fore_Acronym_Complete = 500;
-	public static final int Match_Level_Complete = 600;
+	public static final int Match_Level_Headless = 1000;
+	public static final int Match_Level_Back_Acronym_Overflow = 2000;
+	public static final int Match_Level_Fore_Acronym_Overflow = 3000;
+	public static final int Match_Level_Complete = 4000;
 	public static final int Match_Score_Reward = 1;
-	public static final float Match_Miss_Punish = 0.01f;
-	public static final int Max_Reward_Times = 99;
-	public static final int Max_Punish_Times = 99;
+	public static final float Match_Miss_Punish = 0.001f;
+	public static final int Max_Reward_Times = 999;
+	public static final int Max_Punish_Times = 999;
 
 	public static class phoneStruct {
 		public String phoneNumber;
@@ -203,6 +200,23 @@ public class Contact {
 				score = tmp;
 			}
 		}
+		// 下面这一段可以不用添加，backHeadlessParagraphMatch将会做这件事
+		// 因为很少有人会直接输入号码来查找人的，所以输入号码匹配的优先级应该低
+		// 另外由于号码通常同01开头，而人名很少能够以01开头
+		// 所以一旦输入了号码，通常情况下是直接进入backHeadlessParagraphMatch查找
+		// 徒增笑尔
+		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
+				.hasNext();) {
+			phoneStruct phone = iterator.next();
+			if (phone.phoneNumber.startsWith(reg)) {
+				float tmp = reg.length() * Match_Score_Reward
+						- (phone.phoneNumber.length() - reg.length())
+						* Match_Miss_Punish;
+				if (tmp > score) {
+					score = tmp;
+				}
+			}
+		}
 		return score;
 	}
 
@@ -290,7 +304,6 @@ public class Contact {
 	}
 
 	private float backAcronymOverFlowMatch(ArrayList<String> names, String reg) {
-		// TODO
 		int score = 0;
 		int punish = 0;
 		for (int i = 0; i < names.size(); i++) {
@@ -339,6 +352,7 @@ public class Contact {
 			}
 		}
 		if (score > 0) {
+			System.out.println(matched);
 			return Match_Level_Headless + score * Match_Score_Reward - punish
 					* Match_Miss_Punish;
 		}
