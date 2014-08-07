@@ -192,29 +192,6 @@ public class Contact {
 		return 0f;
 	}
 
-	private float foreAcronymCompleteMatch(String reg) {
-		int punish = 10000;
-		String matched = "";
-		boolean hasMatch = false;
-		for (Iterator<String> iterator = abbreviationNumber.iterator(); iterator
-				.hasNext();) {
-			String str = iterator.next();
-			if (str.startsWith(reg)) {
-				hasMatch = true;
-				int diff = str.length() - reg.length();
-				if (diff < punish) {
-					punish = diff;
-					matched = str;
-				}
-			}
-		}
-		if (hasMatch) {
-			return Match_Level_Fore_Acronym_Complete - punish
-					* Match_Miss_Punish;
-		}
-		return 0;
-	}
-
 	private float foreAcronymOverFlowMatch(String reg) {
 		// TODO
 		float score = 0f;
@@ -297,31 +274,6 @@ public class Contact {
 			this.crossed = c;
 			this.matched = m;
 		}
-	}
-
-	private float backAcronymCompleteMatch(String reg) {
-		int punish = 10000;
-		String matched = "";
-		boolean hasMatch = false;
-		for (Iterator<String> iterator = abbreviationNumber.iterator(); iterator
-				.hasNext();) {
-			String str = iterator.next();
-			// 在backAcronymCompleteMatch之前肯定先调用了foreAcronymCompleteMatch()
-			// 而走到这一步说明str.startsWith(reg)是不可能的,所以直接contains()就可以了
-			if (str.contains(reg)) {
-				hasMatch = true;
-				int diff = str.length() - reg.length();
-				if (diff < punish) {
-					punish = diff;
-					matched = str;
-				}
-			}
-		}
-		if (hasMatch) {
-			return Match_Level_Back_Acronym_Complete - punish
-					* Match_Miss_Punish;
-		}
-		return 0;
 	}
 
 	private float backAcronymOverFlowMatch(String reg) {
