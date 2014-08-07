@@ -1,7 +1,6 @@
 package com.example.quickid.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,7 +9,6 @@ import android.text.TextUtils;
 
 import com.example.legendutils.Tools.TextUtil;
 import com.example.quickid.AppApplication;
-import com.example.quickid.model.Contact.phoneStruct;
 
 /**
  * 毫无疑问，现在的匹配算法是愚蠢和原始的
@@ -250,7 +248,7 @@ public class Contact {
 	private float foreAcronymOverFlowMatch(ArrayList<String> names, String reg) {
 		// TODO
 		if (names.get(0).charAt(0) == reg.charAt(0)) {
-			int cross = crossWords(names, reg, 0, 0, 0);
+			int cross = crossWords(names, reg, 0, 0, 0).crossed;
 			return Match_Level_Back_Acronym_Overflow + cross
 					* Match_Score_Reward - (names.size() - cross)
 					* Match_Miss_Punish;
@@ -262,41 +260,54 @@ public class Contact {
 	 * 返回一串字符能跨越另一串字符的长度，若要保证能跨越最长的长度，只要保证下一个字符能跨越最长的长度即可，这就构成了一个递归
 	 * 
 	 * @param names
+	 * @param regString
+	 *            匹配字符串
 	 * @param listIndex
-	 *            ，匹配到的list的第M个单词
+	 *            匹配到的list的第M个单词
 	 * @param strIndex
-	 *            ，匹配到第M个单词中的第N个index
+	 *            匹配到第M个单词中的第N个index
 	 * @param regIndex
 	 *            regchar的匹配位置
 	 * @return
 	 */
-	private int crossWords(ArrayList<String> names, String regString,
-			int listIndex, int strIndex, int regIndex) {
-		boolean canGoNextWord = false;
-		boolean canStayReser = false;
-		int reser = 0;
-		int impul = 0;
+	public static OverflowMatchValue crossWords(ArrayList<String> names,
+			String regString, int listIndex, int strIndex, int regIndex) {
+
+		OverflowMatchValue reser = new OverflowMatchValue(0, false);
+		OverflowMatchValue impul = new OverflowMatchValue(0, false);
 		if (regIndex < regString.length() - 1) {
-			// regString尚未走到尽头
 			char nextChar = regString.charAt(regIndex + 1);
 			if (listIndex < names.size() - 1
 					&& nextChar == names.get(listIndex + 1).charAt(0)) {
-				canGoNextWord = true;
+				impul = crossWords(names, regString, listIndex + 1, 0,
+						regIndex + 1);
 			}
-
-			if (strIndex < names.get(listIndex).length()
+			if (strIndex < names.get(listIndex).length() - 1
 					&& nextChar == names.get(listIndex).charAt(strIndex + 1)) {
-				canStayReser = true;
+				reser = crossWords(names, regString, listIndex, strIndex + 1,
+						regIndex + 1);
 			}
+		} else {
+			return new OverflowMatchValue((strIndex == 0) ? 1 : 0, true);
 		}
-		if (canStayReser) {
-			reser = crossWords(names, regString, listIndex, strIndex,
-					regIndex + 1);
+
+		OverflowMatchValue result = new OverflowMatchValue(0, false);
+		if (reser.matched || impul.matched) {
+			result.matched = true;
+			result.crossed = ((strIndex == 0) ? 1 : 0)
+					+ Math.max(reser.crossed, impul.crossed);
 		}
-		if (canGoNextWord) {
-			impul = crossWords(names, regString, listIndex, -1, regIndex + 1);
+		return result;
+	}
+
+	static class OverflowMatchValue {
+		public int crossed = 0;
+		public boolean matched = false;
+
+		public OverflowMatchValue(int c, boolean m) {
+			this.crossed = c;
+			this.matched = m;
 		}
-		return ((strIndex == 0) ? 1 : 0) + Math.max(reser, impul);
 	}
 
 	private float backAcronymCompleteMatch(String reg) {
@@ -325,7 +336,53 @@ public class Contact {
 	}
 
 	private float backAcronymOverFlowMatch(String reg) {
-		return 0;
+		float score = 0f;
+		for (Iterator<ArrayList<String>> iterator = fullNameNumber.iterator(); iterator
+				.hasNext();) {
+			ArrayList<String> names = iterator.next();
+			float tmp = backAcronymOverFlowMatch(names, reg);
+			if (tmp > score) {
+				score = tmp;
+			}
+		}
+		return score;
+	}
+
+	private float backAcronymOverFlowMatch(ArrayList<String> names, String reg) {
+		// TODO
+		int cross = crossWords_back(names, reg, 0, 0, 0).crossed;
+		return Match_Level_Back_Acronym_Overflow + cross * Match_Score_Reward
+				- (names.size() - cross) * Match_Miss_Punish;
+	}
+
+	public static OverflowMatchValue crossWords_back(ArrayList<String> names,
+			String regString, int listIndex, int strIndex, int regIndex) {
+
+		OverflowMatchValue reser = new OverflowMatchValue(0, false);
+		OverflowMatchValue impul = new OverflowMatchValue(0, false);
+		if (regIndex < regString.length() - 1) {
+			char nextChar = regString.charAt(regIndex + 1);
+			if (listIndex < names.size() - 1
+					&& nextChar == names.get(listIndex + 1).charAt(0)) {
+				impul = crossWords(names, regString, listIndex + 1, 0,
+						regIndex + 1);
+			}
+			if (strIndex < names.get(listIndex).length() - 1
+					&& nextChar == names.get(listIndex).charAt(strIndex + 1)) {
+				reser = crossWords(names, regString, listIndex, strIndex + 1,
+						regIndex + 1);
+			}
+		} else {
+			return new OverflowMatchValue((strIndex == 0) ? 1 : 0, true);
+		}
+
+		OverflowMatchValue result = new OverflowMatchValue(0, false);
+		if (reser.matched || impul.matched) {
+			result.matched = true;
+			result.crossed = ((strIndex == 0) ? 1 : 0)
+					+ Math.max(reser.crossed, impul.crossed);
+		}
+		return result;
 	}
 
 	private float backHeadlessParagraphMatch(String reg) {
