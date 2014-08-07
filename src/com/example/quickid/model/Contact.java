@@ -133,36 +133,25 @@ public class Contact {
 		// 无法通过第一个字母来判断是不是后置匹配
 		// 但是可以通过第一个字母判断是不是前置匹配
 		// match的原则是匹配尽可能多的字符
-		if (TextUtils.isEmpty(reg)) {
-			return 0;
-		}
+		// 事实上前五种匹配方式都可以使用crossMatch来实现
 		float degree = 0f;
-		if (canPrematch(reg)) {
-			if ((degree = completeMatch(reg)) > 0) {
-				// return this degree
-			} else if ((degree = foreAcronymCompleteMatch(reg)) > 0) {
-				// return this degree
-			} else if ((degree = foreAcronymOverFlowMatch(reg)) > 0) {
-				// return this degree
-			}
-		} else {
-			if ((degree = backAcronymCompleteMatch(reg)) > 0) {
-				// return this degree
-			} else if ((degree = backAcronymOverFlowMatch(reg)) > 0) {
-				// return this degree
-			} else if ((degree = backHeadlessParagraphMatch(reg)) > 0) {
-				// return this degree
+		if (!TextUtils.isEmpty(reg)) {
+			if (canPrematch(reg)) {
+				if ((degree = completeMatch(reg)) == 0f) {
+					degree = foreAcronymOverFlowMatch(reg);
+				}
 			} else {
-				degree = 0;
+				if ((degree = backAcronymOverFlowMatch(reg)) == 0f) {
+					degree = backHeadlessParagraphMatch(reg);
+				}
 			}
 		}
-
 		return degree;
 	}
 
 	/**
-	 * 判断是否可以是前置匹配。可以是前置匹配不意味着一定是，这里只检测第一个字母。
-	 * 因为在大部分情况下，大多数联系人是不可能前置匹配的，在这样的情况下如果仍然先挨个检查四个前置匹配明显是不明智的
+	 * 判断是否有可能前置匹配。返回true不意味着一定能够匹配，因为这里只检测第一个字母。
+	 * 因为在大部分情况下，大多数联系人是不可能前置匹配的，在这样的情况下如果仍然先挨个检查四个前置匹配显然是不明智的
 	 * 
 	 * @return
 	 */
@@ -200,7 +189,7 @@ public class Contact {
 				return Match_Level_Complete;
 			}
 		}
-		return 0;
+		return 0f;
 	}
 
 	private float foreAcronymCompleteMatch(String reg) {
@@ -270,7 +259,7 @@ public class Contact {
 	 *            regchar的匹配位置
 	 * @return
 	 */
-	public static OverflowMatchValue crossWords(ArrayList<String> names,
+	private OverflowMatchValue crossWords(ArrayList<String> names,
 			String regString, int listIndex, int strIndex, int regIndex) {
 
 		OverflowMatchValue reser = new OverflowMatchValue(0, false);
@@ -350,39 +339,21 @@ public class Contact {
 
 	private float backAcronymOverFlowMatch(ArrayList<String> names, String reg) {
 		// TODO
-		int cross = crossWords_back(names, reg, 0, 0, 0).crossed;
-		return Match_Level_Back_Acronym_Overflow + cross * Match_Score_Reward
-				- (names.size() - cross) * Match_Miss_Punish;
-	}
-
-	public static OverflowMatchValue crossWords_back(ArrayList<String> names,
-			String regString, int listIndex, int strIndex, int regIndex) {
-
-		OverflowMatchValue reser = new OverflowMatchValue(0, false);
-		OverflowMatchValue impul = new OverflowMatchValue(0, false);
-		if (regIndex < regString.length() - 1) {
-			char nextChar = regString.charAt(regIndex + 1);
-			if (listIndex < names.size() - 1
-					&& nextChar == names.get(listIndex + 1).charAt(0)) {
-				impul = crossWords(names, regString, listIndex + 1, 0,
-						regIndex + 1);
+		int score = 0;
+		int punish = 0;
+		for (int i = 0; i < names.size(); i++) {
+			String string = (String) names.get(i);
+			if (string.charAt(0) == reg.charAt(0)) {
+				int cross = crossWords(names, reg, i, 0, 0).crossed;
+				int lost = names.size() - cross;
+				if (cross > score || cross == score && punish > lost) {
+					score = cross;
+					punish = names.size() - cross;
+				}
 			}
-			if (strIndex < names.get(listIndex).length() - 1
-					&& nextChar == names.get(listIndex).charAt(strIndex + 1)) {
-				reser = crossWords(names, regString, listIndex, strIndex + 1,
-						regIndex + 1);
-			}
-		} else {
-			return new OverflowMatchValue((strIndex == 0) ? 1 : 0, true);
 		}
-
-		OverflowMatchValue result = new OverflowMatchValue(0, false);
-		if (reser.matched || impul.matched) {
-			result.matched = true;
-			result.crossed = ((strIndex == 0) ? 1 : 0)
-					+ Math.max(reser.crossed, impul.crossed);
-		}
-		return result;
+		return Match_Level_Back_Acronym_Overflow + score * Match_Score_Reward
+				- punish * Match_Miss_Punish;
 	}
 
 	private float backHeadlessParagraphMatch(String reg) {
