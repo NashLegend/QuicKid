@@ -130,7 +130,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 			} else {
 				baseList = AppApplication.AllContacts;
 			}
-
 			for (Iterator<Contact> iterator = baseList.iterator(); iterator
 					.hasNext();) {
 				Contact contact = (Contact) iterator.next();
@@ -139,7 +138,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 				}
 			}
 			sortContact(resultList);
-			System.out.println(resultList.size() + "___" + baseList.size());
 			preQueryString = queryString;
 			results.values = resultList;
 			results.count = resultList.size();

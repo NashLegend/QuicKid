@@ -214,7 +214,8 @@ public class Contact {
 				.hasNext();) {
 			phoneStruct phone = iterator.next();
 			if (phone.phoneNumber.startsWith(reg)) {
-				float tmp = reg.length() * Match_Score_Reward
+				float tmp = Match_Level_Fore_Acronym_Overflow + reg.length()
+						* Match_Score_Reward
 						- (phone.phoneNumber.length() - reg.length())
 						* Match_Miss_Punish;
 				if (tmp > score) {
@@ -320,7 +321,7 @@ public class Contact {
 				int lost = names.size() - cross;
 				if (cross > score || cross == score && punish > lost) {
 					score = cross;
-					punish = names.size() - cross;
+					punish = lost;
 				}
 			}
 		}
@@ -340,31 +341,32 @@ public class Contact {
 				.hasNext();) {
 			String str = iterator.next();
 			// 不可能等于0
-			int sco = -1;
-			if ((score = str.indexOf(reg)) > 0) {
-				if (score < sco) {
+			int sco = str.indexOf(reg);
+			if (sco > 0) {
+				int lost = str.length() - reg.length();
+				if (score < sco || sco == score && punish > lost) {
 					score = sco;
 					matched = str;
+					punish = lost;
 				}
-				punish = str.length() - reg.length();
 			}
 		}
 		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
 				.hasNext();) {
 			phoneStruct phone = iterator.next();
 			// 不可能等于0
-			int sco = -1;
-			if ((score = phone.phoneNumber.indexOf(reg)) > 0) {
-				if (score < sco) {
+			int sco = phone.phoneNumber.indexOf(reg);
+			if (sco > 0) {
+				int lost = phone.phoneNumber.length() - reg.length();
+				if (score < sco || sco == score && punish > lost) {
 					score = sco;
 					matched = phone.phoneNumber;
+					punish = lost;
 				}
-				punish = phone.phoneNumber.length() - reg.length();
 			}
 		}
 		if (score > 0) {
-			System.out.println(matched);
-			return Match_Level_Headless + score * Match_Score_Reward - punish
+			return Match_Level_Headless - score * Match_Score_Reward - punish
 					* Match_Miss_Punish;
 		}
 		return 0;
