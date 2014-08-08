@@ -1,12 +1,9 @@
 package com.example.quickid.fragment;
 
-import com.example.quickid.AppApplication;
 import com.example.quickid.R;
-import com.example.quickid.R.layout;
 import com.example.quickid.adapter.ContactAdapter;
 import com.example.quickid.interfacc.OnListFragmentScrolledListener;
 import com.example.quickid.interfacc.OnQueryContactListener;
-import com.example.quickid.util.ContactHelper;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -79,7 +76,6 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
 			}
 		} else {
 			new Handler().post(new Runnable() {
-
 				@Override
 				public void run() {
 					onQueryChanged(queryString);

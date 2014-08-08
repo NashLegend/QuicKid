@@ -4,6 +4,7 @@ import java.util.Timer;
 
 import com.example.legendutils.Tools.TimerUtil;
 import com.example.quickid.AppApplication;
+import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
 
 import android.app.Service;
@@ -18,8 +19,6 @@ import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.Contacts;
 
 public class ContactService extends Service {
-	private static boolean inwaitstate = false;
-	private static Timer updateTimer;
 	private final Handler mHandler = new Handler();
 
 	public ContactService() {
@@ -28,17 +27,22 @@ public class ContactService extends Service {
 
 	@Override
 	public void onCreate() {
-		System.out.println("oncreate");
 		AppApplication.globalApplication.getContentResolver()
 				.registerContentObserver(Contacts.CONTENT_URI, true,
 						new ContactObserver());
 		AppApplication.globalApplication.getContentResolver()
 				.registerContentObserver(Calls.CONTENT_URI, true,
-						new ContactObserver());
+						new CallLogsContactObserver());
+		AppApplication.globalApplication.getContentResolver()
+				.registerContentObserver(Contacts.CONTENT_STREQUENT_URI, true,
+						new StrequentContactObserver());
 		super.onCreate();
 	}
 
 	private final class ContactObserver extends ContentObserver {
+
+		private boolean inwaitstate = false;
+		private Timer updateTimer;
 
 		public ContactObserver() {
 			super(mHandler);
@@ -59,15 +63,89 @@ public class ContactService extends Service {
 			super.onChange(selfChange, uri);
 		}
 
+		private Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				ContactHelper.loadCallLogs();
+				Intent intent = new Intent();
+				intent.setAction(Consts.Action_All_Contacts_Changed);
+				getApplicationContext().sendBroadcast(intent);
+			}
+		};
 	}
 
-	private Runnable runnable = new Runnable() {
+	private final class StrequentContactObserver extends ContentObserver {
+
+		private boolean inwaitstate = false;
+		private Timer updateTimer;
+
+		public StrequentContactObserver() {
+			super(mHandler);
+		}
 
 		@Override
-		public void run() {
-			ContactHelper.loadCallLogs();
+		public void onChange(boolean selfChange) {
+			if (inwaitstate) {
+				TimerUtil.clearTimeOut(updateTimer);
+			}
+			inwaitstate = true;
+			updateTimer = TimerUtil.setTimeOut(runnable, 3000);
+			super.onChange(selfChange);
 		}
-	};
+
+		@Override
+		public void onChange(boolean selfChange, Uri uri) {
+			super.onChange(selfChange, uri);
+		}
+
+		private Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				ContactHelper.loadStrequent();
+				Intent intent = new Intent();
+				intent.setAction(Consts.Action_Strequent_Contacts_Changed);
+				getApplicationContext().sendBroadcast(intent);
+			}
+		};
+	}
+
+	private final class CallLogsContactObserver extends ContentObserver {
+
+		private boolean inwaitstate = false;
+		private Timer updateTimer;
+
+		public CallLogsContactObserver() {
+			super(mHandler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			if (inwaitstate) {
+				TimerUtil.clearTimeOut(updateTimer);
+			}
+			inwaitstate = true;
+			updateTimer = TimerUtil.setTimeOut(runnable, 3000);
+			super.onChange(selfChange);
+		}
+
+		@Override
+		public void onChange(boolean selfChange, Uri uri) {
+			super.onChange(selfChange, uri);
+		}
+
+		private Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				ContactHelper.loadCallLogs();
+				Intent intent = new Intent();
+				intent.setAction(Consts.Action_CallLogs_Changed);
+				getApplicationContext().sendBroadcast(intent);
+			}
+		};
+	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {

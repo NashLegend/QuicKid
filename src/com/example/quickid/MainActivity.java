@@ -1,16 +1,20 @@
 package com.example.quickid;
 
 import com.example.quickid.fragment.DialpadFragment;
-import com.example.quickid.fragment.FrequentDialFragment;
+import com.example.quickid.fragment.StrequentDialFragment;
 import com.example.quickid.fragment.SearchFragment;
 import com.example.quickid.fragment.DialpadFragment.OnDialpadQueryChangedListener;
 import com.example.quickid.interfacc.OnListFragmentScrolledListener;
+import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,7 +28,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		OnListFragmentScrolledListener, OnDialpadQueryChangedListener {
 
 	private DialpadFragment mDialpadFragment;
-	private FrequentDialFragment mFrequentDialFragment;
+	private StrequentDialFragment mFrequentDialFragment;
 	private SearchFragment mSearchFragment;
 	private ImageButton mDialpadButton;
 	private ImageButton mDialButton;
@@ -44,7 +48,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		if (savedInstanceState == null) {
 			getFragmentManager()
 					.beginTransaction()
-					.add(R.id.layout_dial, new FrequentDialFragment(),
+					.add(R.id.layout_dial, new StrequentDialFragment(),
 							TAG_RECENT_DIAL_FRAGMENT)
 					.add(R.id.layout_dialer_panel, new DialpadFragment(),
 							TAG_DIALPAD_FRAGMENT).commit();
@@ -63,8 +67,8 @@ public class MainActivity extends Activity implements OnClickListener,
 					.beginTransaction();
 			transaction.hide(mDialpadFragment);
 			transaction.commit();
-		} else if (fragment instanceof FrequentDialFragment) {
-			mFrequentDialFragment = (FrequentDialFragment) fragment;
+		} else if (fragment instanceof StrequentDialFragment) {
+			mFrequentDialFragment = (StrequentDialFragment) fragment;
 		}
 		super.onAttachFragment(fragment);
 	}
@@ -176,7 +180,6 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
 			mSearchFragment.onQueryChanged(query);
 		}
-
 	}
 
 	@Override
@@ -185,4 +188,5 @@ public class MainActivity extends Activity implements OnClickListener,
 			hideDialpad(true, false);
 		}
 	}
+
 }

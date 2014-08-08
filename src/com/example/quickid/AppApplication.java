@@ -16,7 +16,7 @@ import android.content.Intent;
 public class AppApplication extends Application {
 	public static ArrayList<Contact> AllContacts = new ArrayList<Contact>();
 	public static ArrayList<RecentContact> AllRecentContacts = new ArrayList<RecentContact>();
-	public static ArrayList<Contact> FrequentContacts = new ArrayList<Contact>();
+	public static ArrayList<Contact> StrequentContacts = new ArrayList<Contact>();
 	public static HanyuPinyinHelper hanyuPinyinHelper;
 	public static Application globalApplication;
 	public static ContentResolver contentResolver;

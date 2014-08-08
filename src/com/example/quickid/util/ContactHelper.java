@@ -1,14 +1,18 @@
 package com.example.quickid.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import com.example.quickid.AppApplication;
+import com.example.quickid.adapter.ContactAdapter.ContactComparator;
 import com.example.quickid.model.Contact;
 import com.example.quickid.model.RecentContact;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -65,7 +69,8 @@ public class ContactHelper {
 		// 要使用RawContacts.CONTACT_ID而不是Contacts.CONTACT_ID
 		String[] PROJECTION = { RawContacts.CONTACT_ID,
 				Contacts.DISPLAY_NAME_PRIMARY, Contacts.LOOKUP_KEY,
-				Contacts.PHOTO_THUMBNAIL_URI, Phone.NUMBER, Phone.TYPE };
+				Contacts.PHOTO_THUMBNAIL_URI, Phone.NUMBER, Phone.TYPE,
+				Contacts.STARRED };
 		Cursor cursor = resolver.query(Phone.CONTENT_URI, PROJECTION, null,
 				null, Contacts.SORT_KEY_PRIMARY);
 		String preLookupKey = "";
@@ -76,6 +81,7 @@ public class ContactHelper {
 				String displayName = cursor.getString(1);
 				String lookupKey = cursor.getString(2);
 				String photoUri = cursor.getString(3);
+				boolean starred = cursor.getInt(6) == 1;
 				if (lookupKey.equals(preLookupKey) && preContact != null) {
 					preContact.addPhone(cursor.getString(4), cursor.getInt(5));
 				} else {
@@ -85,6 +91,7 @@ public class ContactHelper {
 					contact.setLookupKey(lookupKey);
 					contact.setPhotoUri(photoUri);
 					contact.addPhone(cursor.getString(4), cursor.getInt(5));
+					contact.setStarred(starred);
 					AllContacts.add(contact);
 					preLookupKey = lookupKey;
 					preContact = contact;
@@ -162,13 +169,15 @@ public class ContactHelper {
 	/**
 	 * 加载最近联系人（和收藏联系人）
 	 */
-	public static void loadFrequent() {
-		ArrayList<Contact> FrequentContacts = new ArrayList<Contact>();
-		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME_PRIMARY,
+	public static void loadStrequent() {
+		ArrayList<Contact> StrequentContacts = new ArrayList<Contact>();
+		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME,
 				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
-				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED };
+				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED,
+				Contacts.STARRED };
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
+		// 显示最近联系人和收藏的联系人
 		Cursor cursor = resolver.query(Contacts.CONTENT_STREQUENT_URI,
 				projection, null, null, null);
 		while (cursor.moveToNext()) {
@@ -179,20 +188,22 @@ public class ContactHelper {
 			String photoUri = cursor.getString(3);
 			int TIMES_CONTACTED = cursor.getInt(4);
 			long LAST_TIME_CONTACTED = cursor.getLong(5);
+			boolean starred = cursor.getInt(6) == 1;
 			contact.setContactId(contractID);
 			contact.setName(displayName);
 			contact.setLookupKey(lookupKey);
 			contact.setPhotoUri(photoUri);
+			contact.setStarred(starred);
 			contact.TIMES_CONTACTED = TIMES_CONTACTED;
 			contact.LAST_TIME_CONTACTED = LAST_TIME_CONTACTED;
-			FrequentContacts.add(contact);
+			StrequentContacts.add(contact);
 		}
 		cursor.close();
-		AppApplication.FrequentContacts = FrequentContacts;
+		AppApplication.StrequentContacts = StrequentContacts;
 		// notify
 	}
 
-	public static void removeFrequent(long contact_ID) {
+	public static void removeStrequent(long contact_ID) {
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
 		if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, Contacts._ID,
@@ -201,11 +212,91 @@ public class ContactHelper {
 		}
 	}
 
-	public static void clearFrequent() {
+	public static void clearStrequent() {
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
 		if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, null, null) > 0) {
 			// delete ok
+		}
+	}
+
+	/**
+	 * 加载最近联系人（和收藏联系人）
+	 */
+	public static void loadFrequent() {
+		ArrayList<Contact> FrequentContacts = new ArrayList<Contact>();
+		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME,
+				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
+				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED,
+				Contacts.STARRED };
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		// 显示最近联系人，不知为何不能排序，只能按通讯次数排序
+		Cursor cursor = resolver.query(
+				Uri.withAppendedPath(Contacts.CONTENT_URI, "frequent"),
+				projection, null, null, null);
+		while (cursor.moveToNext()) {
+			Contact contact = new Contact();
+			long contractID = cursor.getInt(0);
+			String displayName = cursor.getString(1);
+			String lookupKey = cursor.getString(2);
+			String photoUri = cursor.getString(3);
+			int TIMES_CONTACTED = cursor.getInt(4);
+			long LAST_TIME_CONTACTED = cursor.getLong(5);
+			boolean starred = cursor.getInt(6) == 1;
+			contact.setContactId(contractID);
+			contact.setName(displayName);
+			contact.setLookupKey(lookupKey);
+			contact.setPhotoUri(photoUri);
+			contact.setStarred(starred);
+			contact.TIMES_CONTACTED = TIMES_CONTACTED;
+			contact.LAST_TIME_CONTACTED = LAST_TIME_CONTACTED;
+			FrequentContacts.add(contact);
+		}
+		cursor.close();
+		sortContactByLAST_TIME_CONTACTED(FrequentContacts);
+		AppApplication.StrequentContacts = FrequentContacts;
+		// notify
+	}
+
+	public static void removeFrequent(long contact_ID) {
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		if (resolver.delete(
+				Uri.withAppendedPath(Contacts.CONTENT_URI, "frequent"),
+				Contacts._ID, new String[] { String.valueOf(contact_ID) }) > 0) {
+			// delete ok
+		}
+	}
+
+	public static void clearFrequent() {
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		if (resolver.delete(
+				Uri.withAppendedPath(Contacts.CONTENT_URI, "frequent"), null,
+				null) > 0) {
+			// delete ok
+		}
+	}
+
+	public static void sortContactByLAST_TIME_CONTACTED(ArrayList<Contact> lis) {
+		ContactComparator comparator = new ContactComparator();
+		Collections.sort(lis, comparator);
+	}
+
+	public static class ContactComparator implements Comparator<Contact> {
+
+		@Override
+		public int compare(Contact lhs, Contact rhs) {
+
+			// 如果同是文件夹或者文件，则按名称排序
+			if (lhs.LAST_TIME_CONTACTED > rhs.LAST_TIME_CONTACTED) {
+				return -1;
+			} else if (lhs.LAST_TIME_CONTACTED == rhs.LAST_TIME_CONTACTED) {
+				return 0;
+			} else {
+				return 1;
+			}
 		}
 	}
 

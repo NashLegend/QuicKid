@@ -30,6 +30,7 @@ public class Contact {
 	private String lookupKey = "";
 	private String photoUri;
 	private Uri lookupUri;
+	private boolean starred = false;
 
 	public int TIMES_CONTACTED = 0;
 	public long LAST_TIME_CONTACTED = 0l;
@@ -433,6 +434,14 @@ public class Contact {
 
 	public void setLookupUri(Uri lookupUri) {
 		this.lookupUri = lookupUri;
+	}
+
+	public boolean isStarred() {
+		return starred;
+	}
+
+	public void setStarred(boolean starred) {
+		this.starred = starred;
 	}
 
 }
