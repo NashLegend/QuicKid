@@ -95,9 +95,11 @@ public class MainActivity extends Activity implements OnClickListener,
 	}
 
 	public void exitSearchUi() {
-		getFragmentManager().popBackStack(0,
-				FragmentManager.POP_BACK_STACK_INCLUSIVE);
-		currentStatus = Status_Show_Frequent;
+		if (currentStatus == Status_Show_Search) {
+			getFragmentManager().popBackStack(0,
+					FragmentManager.POP_BACK_STACK_INCLUSIVE);
+			currentStatus = Status_Show_Frequent;
+		}
 	}
 
 	public void showDialpad(boolean animate) {
@@ -166,7 +168,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onDialpadQueryChanged(String query) {
-		if (TextUtils.isEmpty(query) && currentStatus == Status_Show_Search) {
+		if (TextUtils.isEmpty(query)) {
 			exitSearchUi();
 		} else {
 			if (currentStatus == Status_Show_Frequent) {

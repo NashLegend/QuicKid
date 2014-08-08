@@ -11,6 +11,7 @@ import com.example.quickid.util.ContactHelper;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,8 +24,8 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
 
 	private ContactAdapter adapter;
 	private ListView listView;
-	private String preQueryString = "";
 	private OnListFragmentScrolledListener mActivityScrollListener;
+	private View layoutView;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -44,12 +45,11 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		final View layoutView = inflater.inflate(R.layout.fragment_search,
-				container, false);
+		layoutView = inflater.inflate(R.layout.fragment_search, container,
+				false);
 		listView = (ListView) layoutView
 				.findViewById(R.id.listview_search_contact);
 		adapter = new ContactAdapter(getActivity());
-		adapter.setContacts(AppApplication.AllContacts);
 		listView.setAdapter(adapter);
 		listView.setOnScrollListener(new OnScrollListener() {
 
@@ -66,64 +66,26 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
 
 			}
 		});
-		loadAllContact();
 		return layoutView;
 	}
 
-	private void loadAllContact() {
-		ContactHelper.loadContacts();
-		adapter.setContacts(AppApplication.AllContacts);
-		adapter.notifyDataSetChanged();
-	}
-
 	@Override
-	public void onQueryChanged(String queryString) {
-		if (queryString == null) {
-			queryString = "";
-		}
-		if (this.preQueryString.equals(queryString)) {
-			return;
-		}
-		if (TextUtils.isEmpty(queryString)) {
-			onQueryEmpty();
-		} else {
-			int preLength = this.preQueryString.length();
-			int queryLength = queryString.length();
-			if (preLength > 0 && (preLength == queryLength + 1)
-					&& this.preQueryString.startsWith(queryString)) {
-				onQueryDeleteOneCharactorFromEnd(queryString);
-			} else if (preLength > 0 && (preLength == queryLength - 1)
-					&& queryString.startsWith(this.preQueryString)) {
-				onQueryAddOneCharactorFromEnd(queryString);
+	public void onQueryChanged(final String queryString) {
+		if (isAdded()) {
+			if (TextUtils.isEmpty(queryString)) {
+				// impossible,do nothing
 			} else {
-				onSimpleQuery(queryString);
+				adapter.getFilter().filter(queryString);
 			}
+		} else {
+			new Handler().post(new Runnable() {
+
+				@Override
+				public void run() {
+					onQueryChanged(queryString);
+				}
+			});
 		}
-		preQueryString = queryString;
-	}
-
-	@Override
-	public void onQueryAddOneCharactorFromEnd(String charString) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onQueryDeleteOneCharactorFromEnd(String charString) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onQueryEmpty() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onSimpleQuery(String queryString) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

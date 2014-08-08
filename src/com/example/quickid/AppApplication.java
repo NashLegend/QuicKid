@@ -6,6 +6,7 @@ import java.util.HashMap;
 import com.example.quickid.model.Contact;
 import com.example.quickid.model.RecentContact;
 import com.example.quickid.service.ContactService;
+import com.example.quickid.util.ContactHelper;
 import com.example.quickid.util.HanyuPinyinHelper;
 
 import android.app.Application;
@@ -73,6 +74,8 @@ public class AppApplication extends Application {
 
 		Intent intent = new Intent(this, ContactService.class);
 		startService(intent);
+
+		ContactHelper.loadContacts();
 	}
 
 	public static ContentResolver getApplicationContentResolver() {

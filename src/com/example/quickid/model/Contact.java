@@ -65,6 +65,8 @@ public class Contact {
 		}
 	}
 
+	public float matchValue = 0f;
+
 	public Contact() {
 
 	}
@@ -112,6 +114,8 @@ public class Contact {
 			Character ch = AppApplication.keyBoardMaps.get(str.charAt(i));
 			if (ch != null) {
 				sb.append(ch);
+			} else {
+				sb.append(str.charAt(i));
 			}
 		}
 		return sb.toString();
@@ -143,6 +147,7 @@ public class Contact {
 				}
 			}
 		}
+		matchValue = degree;
 		return degree;
 	}
 
@@ -229,9 +234,11 @@ public class Contact {
 		// TODO
 		if (names.get(0).charAt(0) == reg.charAt(0)) {
 			int cross = crossWords(names, reg, 0, 0, 0).crossed;
-			return Match_Level_Back_Acronym_Overflow + cross
-					* Match_Score_Reward - (names.size() - cross)
-					* Match_Miss_Punish;
+			if (cross > 0) {
+				return Match_Level_Fore_Acronym_Overflow + cross
+						* Match_Score_Reward - (names.size() - cross)
+						* Match_Miss_Punish;
+			}
 		}
 		return 0;
 	}
@@ -317,8 +324,12 @@ public class Contact {
 				}
 			}
 		}
+		if (score == 0) {
+			return 0;
+		}
 		return Match_Level_Back_Acronym_Overflow + score * Match_Score_Reward
 				- punish * Match_Miss_Punish;
+
 	}
 
 	private float backHeadlessParagraphMatch(String reg) {
