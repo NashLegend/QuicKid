@@ -136,8 +136,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 				Contact contact = (Contact) iterator.next();
 				if (contact.match(queryString) > 0) {
 					resultList.add(contact);
-					System.out.println(contact.matchValue + " "
-							+ contact.getName());
 				}
 			}
 			sortContact(resultList);

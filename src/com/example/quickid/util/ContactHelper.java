@@ -132,7 +132,6 @@ public class ContactHelper {
 			contact.setName(name);
 			contact.setNumber(number);
 			contact.setNumberType(numberType);
-
 			AllRecentContacts.add(contact);
 		}
 		cursor.close();
@@ -141,6 +140,23 @@ public class ContactHelper {
 		Intent intent = new Intent();
 		intent.setAction(Consts.Action_All_Contacts_Changed);
 		AppApplication.globalApplication.sendBroadcast(intent);
+	}
+
+	public static void removeCallLog(long call_ID) {
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, Calls._ID,
+				new String[] { String.valueOf(call_ID) }) > 0) {
+			// delete ok
+		}
+	}
+
+	public static void clearCallLogs() {
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		if (resolver.delete(Calls.CONTENT_URI, null, null) > 0) {
+			// delete ok
+		}
 	}
 
 	/**
@@ -157,7 +173,6 @@ public class ContactHelper {
 				projection, null, null, null);
 		while (cursor.moveToNext()) {
 			Contact contact = new Contact();
-
 			long contractID = cursor.getInt(0);
 			String displayName = cursor.getString(1);
 			String lookupKey = cursor.getString(2);
@@ -168,7 +183,6 @@ public class ContactHelper {
 			contact.setName(displayName);
 			contact.setLookupKey(lookupKey);
 			contact.setPhotoUri(photoUri);
-
 			contact.TIMES_CONTACTED = TIMES_CONTACTED;
 			contact.LAST_TIME_CONTACTED = LAST_TIME_CONTACTED;
 			FrequentContacts.add(contact);
@@ -176,6 +190,23 @@ public class ContactHelper {
 		cursor.close();
 		AppApplication.FrequentContacts = FrequentContacts;
 		// notify
+	}
+
+	public static void removeFrequent(long contact_ID) {
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, Contacts._ID,
+				new String[] { String.valueOf(contact_ID) }) > 0) {
+			// delete ok
+		}
+	}
+
+	public static void clearFrequent() {
+		ContentResolver resolver = AppApplication.globalApplication
+				.getContentResolver();
+		if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, null, null) > 0) {
+			// delete ok
+		}
 	}
 
 	/**
