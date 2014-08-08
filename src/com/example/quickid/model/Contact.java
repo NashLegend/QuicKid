@@ -260,7 +260,6 @@ public class Contact {
 	 */
 	private OverflowMatchValue crossWords(ArrayList<String> names,
 			String regString, int listIndex, int strIndex, int regIndex) {
-
 		OverflowMatchValue reser = new OverflowMatchValue(0, false);
 		OverflowMatchValue impul = new OverflowMatchValue(0, false);
 		if (regIndex < regString.length() - 1) {
@@ -342,7 +341,7 @@ public class Contact {
 			String str = iterator.next();
 			// 不可能等于0
 			int sco = str.indexOf(reg);
-			if (sco > 0) {
+			if (sco >= 0) {
 				int lost = str.length() - reg.length();
 				if (score < sco || sco == score && punish > lost) {
 					score = sco;
@@ -356,7 +355,7 @@ public class Contact {
 			phoneStruct phone = iterator.next();
 			// 不可能等于0
 			int sco = phone.phoneNumber.indexOf(reg);
-			if (sco > 0) {
+			if (sco >= 0) {
 				int lost = phone.phoneNumber.length() - reg.length();
 				if (score < sco || sco == score && punish > lost) {
 					score = sco;

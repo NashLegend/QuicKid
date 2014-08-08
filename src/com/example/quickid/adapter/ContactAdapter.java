@@ -130,11 +130,14 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 			} else {
 				baseList = AppApplication.AllContacts;
 			}
+
 			for (Iterator<Contact> iterator = baseList.iterator(); iterator
 					.hasNext();) {
 				Contact contact = (Contact) iterator.next();
 				if (contact.match(queryString) > 0) {
 					resultList.add(contact);
+					System.out.println(contact.matchValue + " "
+							+ contact.getName());
 				}
 			}
 			sortContact(resultList);
