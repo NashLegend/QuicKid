@@ -7,6 +7,8 @@ import java.util.Iterator;
 
 import com.example.quickid.AppApplication;
 import com.example.quickid.model.Contact;
+import com.example.quickid.model.Contact.PointPair;
+import com.example.quickid.model.Contact.ScoreAndHits;
 import com.example.quickid.view.ContactView;
 
 import android.content.Context;
@@ -21,9 +23,11 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 
 	private ArrayList<Contact> contacts = new ArrayList<Contact>();
 	private Context mContext;
+	private int display_Mode = ContactView.Display_Mode_Display;
 
-	public ContactAdapter(Context context) {
+	public ContactAdapter(Context context, int display) {
 		mContext = context;
+		display_Mode = display;
 	}
 
 	@Override
@@ -46,7 +50,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 		ViewHolder holder = null;
 		if (convertView == null) {
 			holder = new ViewHolder();
-			ContactView contactView = new ContactView(mContext);
+			ContactView contactView = new ContactView(mContext, display_Mode);
 			holder.contactView = contactView;
 			contactView.setTag(holder);
 		} else {
@@ -72,9 +76,9 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 		public int compare(Contact lhs, Contact rhs) {
 
 			// 如果同是文件夹或者文件，则按名称排序
-			if (lhs.matchValue > rhs.matchValue) {
+			if (lhs.matchValue.score > rhs.matchValue.score) {
 				return -1;
-			} else if (lhs.matchValue == rhs.matchValue) {
+			} else if (lhs.matchValue.score == rhs.matchValue.score) {
 				return 0;
 			} else {
 				return 1;

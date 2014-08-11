@@ -6,6 +6,7 @@ import com.example.quickid.R.layout;
 import com.example.quickid.adapter.ContactAdapter;
 import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
+import com.example.quickid.view.ContactView;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -34,7 +35,7 @@ public class StrequentDialFragment extends Fragment {
 				false);
 		listView = (ListView) layoutView
 				.findViewById(R.id.listview_frequent_contact);
-		adapter = new ContactAdapter(getActivity());
+		adapter = new ContactAdapter(getActivity(),ContactView.Display_Mode_Recent);
 		adapter.setContacts(AppApplication.StrequentContacts);
 		listView.setAdapter(adapter);
 		registeReceiver();

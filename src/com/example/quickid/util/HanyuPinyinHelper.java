@@ -42,7 +42,20 @@ public class HanyuPinyinHelper {
 		String codepointHexStr = Integer.toHexString(codePointOfChar)
 				.toUpperCase();
 		String str = (String) allPinyin.get(codepointHexStr);
-		return str.split(",");
+		String[] strs = str.split(",");
+		for (int i = 0; i < strs.length; i++) {
+			strs[i] = UpperFirstLetter(strs[i]);
+		}
+		return strs;
+	}
+
+	public String UpperFirstLetter(String str) {
+		if (str.length() > 1) {
+			return String.valueOf(str.charAt(0)).toUpperCase()
+					+ str.substring(1);
+		} else {
+			return str.toUpperCase();
+		}
 	}
 
 	/**

@@ -4,6 +4,7 @@ import com.example.quickid.R;
 import com.example.quickid.adapter.ContactAdapter;
 import com.example.quickid.interfacc.OnListFragmentScrolledListener;
 import com.example.quickid.interfacc.OnQueryContactListener;
+import com.example.quickid.view.ContactView;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -46,7 +47,7 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
 				false);
 		listView = (ListView) layoutView
 				.findViewById(R.id.listview_search_contact);
-		adapter = new ContactAdapter(getActivity());
+		adapter = new ContactAdapter(getActivity(),ContactView.Display_Mode_Search);
 		listView.setAdapter(adapter);
 		listView.setOnScrollListener(new OnScrollListener() {
 

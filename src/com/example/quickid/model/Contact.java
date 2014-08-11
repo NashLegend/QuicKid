@@ -18,11 +18,10 @@ import com.example.quickid.AppApplication;
  */
 public class Contact {
 
-	private List<String> fullNamesString = new ArrayList<String>();// String是带空格的
-	private List<String> abbreviationStrings = new ArrayList<String>();
-	private List<ArrayList<String>> fullNameNumber = new ArrayList<ArrayList<String>>();
-	private List<String> fullNameNumberWithoutSpace = new ArrayList<String>();
-	private List<String> abbreviationNumber = new ArrayList<String>();
+	public List<String> fullNamesString = new ArrayList<String>();// String是带空格的
+	public List<ArrayList<String>> fullNameNumber = new ArrayList<ArrayList<String>>();
+	public List<String> fullNameNumberWithoutSpace = new ArrayList<String>();
+	public List<String> abbreviationNumber = new ArrayList<String>();
 	// 以上三个列表在绝大多数情况下长度为一
 	private String name = "";
 	private List<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
@@ -43,12 +42,21 @@ public class Contact {
 
 	public int sourceType = 0;
 
-	public static final int Match_Level_None = 0;
-	public static final int Match_Level_Headless = 1000;
-	public static final int Match_Level_Back_Acronym_Overflow = 2000;
-	public static final int Match_Level_Fore_Acronym_Overflow = 3000;
-	public static final int Match_Level_Complete = 4000;
-	public static final int Match_Score_Reward = 1;
+	public static final int Match_Type_Name = 1;
+	public static final int Match_Type_Phone = 2;
+
+	public static final int Level_Complete = 4;
+	public static final int Level_Fore_Acronym_Overflow = 3;
+	public static final int Level_Back_Acronym_Overflow = 2;
+	public static final int Level_Headless = 1;
+	public static final int Level_None = 0;
+
+	public static final float Match_Level_None = 0;
+	public static final float Match_Level_Headless = 1000;
+	public static final float Match_Level_Back_Acronym_Overflow = 2000;
+	public static final float Match_Level_Fore_Acronym_Overflow = 3000;
+	public static final float Match_Level_Complete = 4000;
+	public static final float Match_Score_Reward = 1;
 	public static final float Match_Miss_Punish = 0.001f;
 	public static final int Max_Reward_Times = 999;
 	public static final int Max_Punish_Times = 999;
@@ -59,14 +67,34 @@ public class Contact {
 		public String displayType;
 
 		public phoneStruct(String number, int type) {
-			number.replaceFirst("^\\+86", "");
-			phoneNumber = number;
+			phoneNumber = number.replaceAll("^\\+86", "");
 			phoneType = type;
-
 		}
 	}
 
-	public float matchValue = 0f;
+	static class OverflowMatchValue {
+		public int crossed = 0;
+		public boolean matched = false;
+		public ArrayList<PointPair> pairs = new ArrayList<PointPair>();
+
+		public OverflowMatchValue(int c, boolean m) {
+			this.crossed = c;
+			this.matched = m;
+		}
+	}
+
+	public static class PointPair {
+		public int listIndex;
+		public int strIndex;
+
+		public PointPair(int listIndex, int strIndex) {
+			this.listIndex = listIndex;
+			this.strIndex = strIndex;
+		}
+	}
+
+	public ScoreAndHits matchValue = new ScoreAndHits(-1, 0f,
+			new ArrayList<PointPair>());
 
 	public Contact() {
 
@@ -127,6 +155,8 @@ public class Contact {
 	}
 
 	/**
+	 * 单个联系人能匹配多个号码时，只显示一个，因为不需要
+	 * 
 	 * @param key
 	 *            a String of 0-9
 	 * @return
@@ -136,20 +166,22 @@ public class Contact {
 		// 但是可以通过第一个字母判断是不是前置匹配
 		// match的原则是匹配尽可能多的字符
 		// 事实上前五种匹配方式都可以使用crossMatch来实现
-		float degree = 0f;
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, 0f,
+				new ArrayList<PointPair>());
 		if (!TextUtils.isEmpty(reg)) {
 			if (canPrematch(reg)) {
-				if ((degree = completeMatch(reg)) == 0f) {
-					degree = foreAcronymOverFlowMatch(reg);
+				if ((scoreAndHits = completeMatch(reg)).score == 0f) {
+					scoreAndHits = foreAcronymOverFlowMatch(reg);
 				}
 			} else {
-				if ((degree = backAcronymOverFlowMatch(reg)) == 0f) {
-					degree = backHeadlessParagraphMatch(reg);
+				if ((scoreAndHits = backAcronymOverFlowMatch(reg)).score == 0f) {
+					scoreAndHits = backHeadlessParagraphMatch(reg);
 				}
 			}
 		}
-		matchValue = degree;
-		return degree;
+		scoreAndHits.reg = reg;
+		matchValue = scoreAndHits;
+		return scoreAndHits.score;
 	}
 
 	/**
@@ -167,64 +199,67 @@ public class Contact {
 				return true;
 			}
 		}
-		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
-				.hasNext();) {
-			phoneStruct phone = iterator.next();
-			if (ch == phone.phoneNumber.charAt(0)) {
-				return true;
-			}
-		}
 		return false;
 	}
 
-	private float completeMatch(String reg) {
-		for (Iterator<String> iterator = fullNameNumberWithoutSpace.iterator(); iterator
-				.hasNext();) {
-			String str = iterator.next();
+	private ScoreAndHits completeMatch(String reg) {
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, 0f,
+				new ArrayList<PointPair>());
+
+		for (int i = 0; i < fullNameNumberWithoutSpace.size(); i++) {
+			String str = fullNameNumberWithoutSpace.get(i);
 			if (reg.equals(str)) {
-				return Match_Level_Complete;
+				scoreAndHits.nameIndex = i;
+				scoreAndHits.score = Match_Level_Complete;
+				scoreAndHits.pairs.add(new PointPair(i, -1));
+				scoreAndHits.matchLevel = Level_Complete;
+				return scoreAndHits;
 			}
 		}
-		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
-				.hasNext();) {
-			phoneStruct phone = iterator.next();
+
+		for (int i = 0; i < phones.size(); i++) {
+			phoneStruct phone = phones.get(i);
 			if (reg.equals(phone.phoneNumber)) {
-				return Match_Level_Complete;
+				scoreAndHits.nameIndex = i;
+				scoreAndHits.score = Match_Level_Complete;
+				scoreAndHits.pairs.add(new PointPair(i, -1));
+				scoreAndHits.matchType = Match_Type_Phone;
+				scoreAndHits.matchLevel = Level_Complete;
+				return scoreAndHits;
 			}
 		}
-		return 0f;
+		return new ScoreAndHits(-1, 0f, new ArrayList<PointPair>());
 	}
 
-	private float foreAcronymOverFlowMatch(String reg) {
-		// TODO
-		float score = 0f;
-		for (Iterator<ArrayList<String>> iterator = fullNameNumber.iterator(); iterator
-				.hasNext();) {
-			ArrayList<String> names = iterator.next();
-			float tmp = foreAcronymOverFlowMatch(names, reg);
-			if (tmp > score) {
-				score = tmp;
+	public static class ScoreAndHits {
+		public float score = 0f;
+		public int nameIndex;
+		public ArrayList<PointPair> pairs = new ArrayList<PointPair>();
+		public int matchType = Match_Type_Name;
+		public int matchLevel = Level_None;
+		public String reg = "";
+
+		public ScoreAndHits(int nameIndex, float score,
+				ArrayList<PointPair> pairs) {
+			this.nameIndex = nameIndex;
+			this.score = score;
+			this.pairs = pairs;
+		}
+	}
+
+	private ScoreAndHits foreAcronymOverFlowMatch(String reg) {
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, 0f,
+				new ArrayList<PointPair>());
+		for (int i = 0; i < fullNameNumber.size(); i++) {
+			ArrayList<String> names = fullNameNumber.get(i);
+			ScoreAndHits tmpscore = foreAcronymOverFlowMatch(names, reg);
+			if (tmpscore.score > scoreAndHits.score) {
+				scoreAndHits = tmpscore;
+				scoreAndHits.nameIndex = i;
 			}
 		}
-		// 下面这一段可以不用添加，backHeadlessParagraphMatch将会做这件事
-		// 因为很少有人会直接输入号码来查找人的，所以输入号码匹配的优先级应该低
-		// 另外由于号码通常同01开头，而人名很少能够以01开头
-		// 所以一旦输入了号码，通常情况下是直接进入backHeadlessParagraphMatch查找
-		// 徒增笑尔
-		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
-				.hasNext();) {
-			phoneStruct phone = iterator.next();
-			if (phone.phoneNumber.startsWith(reg)) {
-				float tmp = Match_Level_Fore_Acronym_Overflow + reg.length()
-						* Match_Score_Reward
-						- (phone.phoneNumber.length() - reg.length())
-						* Match_Miss_Punish;
-				if (tmp > score) {
-					score = tmp;
-				}
-			}
-		}
-		return score;
+		scoreAndHits.matchLevel = Level_Fore_Acronym_Overflow;
+		return scoreAndHits;
 	}
 
 	// 在第一个字母确定的情况下，第二个字母有可能有三种情况
@@ -232,17 +267,22 @@ public class Contact {
 	// 二、在第二个单词的首字母处
 	// 三、以上两种情况皆不符合，不匹配，出局
 
-	private float foreAcronymOverFlowMatch(ArrayList<String> names, String reg) {
-		// TODO
+	private ScoreAndHits foreAcronymOverFlowMatch(ArrayList<String> names,
+			String reg) {
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, 0f,
+				new ArrayList<PointPair>());
 		if (names.get(0).charAt(0) == reg.charAt(0)) {
+			OverflowMatchValue value = crossWords(names, reg, 0, 0, 0);
 			int cross = crossWords(names, reg, 0, 0, 0).crossed;
 			if (cross > 0) {
-				return Match_Level_Fore_Acronym_Overflow + cross
+				scoreAndHits.score = Match_Level_Fore_Acronym_Overflow + cross
 						* Match_Score_Reward - (names.size() - cross)
 						* Match_Miss_Punish;
+				scoreAndHits.pairs = value.pairs;
 			}
+
 		}
-		return 0;
+		return scoreAndHits;
 	}
 
 	/**
@@ -261,6 +301,7 @@ public class Contact {
 	 */
 	private OverflowMatchValue crossWords(ArrayList<String> names,
 			String regString, int listIndex, int strIndex, int regIndex) {
+		OverflowMatchValue result = new OverflowMatchValue(0, false);
 		OverflowMatchValue reser = new OverflowMatchValue(0, false);
 		OverflowMatchValue impul = new OverflowMatchValue(0, false);
 		if (regIndex < regString.length() - 1) {
@@ -276,100 +317,94 @@ public class Contact {
 						regIndex + 1);
 			}
 		} else {
-			return new OverflowMatchValue((strIndex == 0) ? 1 : 0, true);
+			result = new OverflowMatchValue((strIndex == 0) ? 1 : 0, true);
+			result.pairs.add(0, new PointPair(listIndex, strIndex));
 		}
 
-		OverflowMatchValue result = new OverflowMatchValue(0, false);
 		if (reser.matched || impul.matched) {
+			if (impul.crossed > reser.crossed) {
+				result = impul;
+			} else {
+				result = reser;
+			}
 			result.matched = true;
 			result.crossed = ((strIndex == 0) ? 1 : 0)
-					+ Math.max(reser.crossed, impul.crossed);
+					+ Math.max(result.crossed, result.crossed);
+			result.pairs.add(0, new PointPair(listIndex, strIndex));
 		}
 		return result;
 	}
 
-	static class OverflowMatchValue {
-		public int crossed = 0;
-		public boolean matched = false;
-
-		public OverflowMatchValue(int c, boolean m) {
-			this.crossed = c;
-			this.matched = m;
-		}
-	}
-
-	private float backAcronymOverFlowMatch(String reg) {
-		float score = 0f;
-		for (Iterator<ArrayList<String>> iterator = fullNameNumber.iterator(); iterator
-				.hasNext();) {
-			ArrayList<String> names = iterator.next();
-			float tmp = backAcronymOverFlowMatch(names, reg);
-			if (tmp > score) {
-				score = tmp;
+	private ScoreAndHits backAcronymOverFlowMatch(String reg) {
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, 0f,
+				new ArrayList<PointPair>());
+		for (int i = 0; i < fullNameNumber.size(); i++) {
+			ArrayList<String> names = fullNameNumber.get(i);
+			ScoreAndHits tmp = backAcronymOverFlowMatch(names, reg);
+			if (tmp.score > scoreAndHits.score) {
+				scoreAndHits = tmp;
+				scoreAndHits.nameIndex = i;
 			}
 		}
-		return score;
+		scoreAndHits.matchLevel = Level_Back_Acronym_Overflow;
+		return scoreAndHits;
 	}
 
-	private float backAcronymOverFlowMatch(ArrayList<String> names, String reg) {
+	private ScoreAndHits backAcronymOverFlowMatch(ArrayList<String> names,
+			String reg) {
 		int score = 0;
 		int punish = 0;
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, 0f,
+				new ArrayList<PointPair>());
 		for (int i = 0; i < names.size(); i++) {
 			String string = (String) names.get(i);
 			if (string.charAt(0) == reg.charAt(0)) {
-				int cross = crossWords(names, reg, i, 0, 0).crossed;
+				OverflowMatchValue value = crossWords(names, reg, i, 0, 0);
+				int cross = value.crossed;
 				int lost = names.size() - cross;
 				if (cross > score || cross == score && punish > lost) {
+					scoreAndHits.pairs = value.pairs;
 					score = cross;
 					punish = lost;
 				}
 			}
 		}
-		if (score == 0) {
-			return 0;
+		if (score > 0) {
+			scoreAndHits.score = Match_Level_Back_Acronym_Overflow + score
+					* Match_Score_Reward - punish * Match_Miss_Punish;
+			return scoreAndHits;
+		} else {
+			return new ScoreAndHits(-1, 0f, new ArrayList<PointPair>());
 		}
-		return Match_Level_Back_Acronym_Overflow + score * Match_Score_Reward
-				- punish * Match_Miss_Punish;
 
 	}
 
-	private float backHeadlessParagraphMatch(String reg) {
-		int score = 0;
+	private ScoreAndHits backHeadlessParagraphMatch(String reg) {
 		int punish = 0;
-		String matched = "";
-		for (Iterator<String> iterator = fullNameNumberWithoutSpace.iterator(); iterator
-				.hasNext();) {
-			String str = iterator.next();
-			// 不可能等于0
-			int sco = str.indexOf(reg);
-			if (sco >= 0) {
-				int lost = str.length() - reg.length();
-				if (score < sco || sco == score && punish > lost) {
-					score = sco;
-					matched = str;
-					punish = lost;
-				}
-			}
-		}
-		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
-				.hasNext();) {
-			phoneStruct phone = iterator.next();
-			// 不可能等于0
+		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, -1f,
+				new ArrayList<PointPair>());
+		scoreAndHits.matchLevel = Level_Headless;
+		scoreAndHits.matchType = Match_Type_Phone;
+		// 不匹配姓名
+		for (int i = 0; i < phones.size(); i++) {
+			phoneStruct phone = phones.get(i);
 			int sco = phone.phoneNumber.indexOf(reg);
 			if (sco >= 0) {
 				int lost = phone.phoneNumber.length() - reg.length();
-				if (score < sco || sco == score && punish > lost) {
-					score = sco;
-					matched = phone.phoneNumber;
+				if (scoreAndHits.score < sco || sco == scoreAndHits.score
+						&& punish > lost) {
+					scoreAndHits.score = sco;
+					scoreAndHits.nameIndex = i;
+					scoreAndHits.pairs.add(new PointPair(i, sco));
 					punish = lost;
 				}
 			}
 		}
-		if (score > 0) {
-			return Match_Level_Headless - score * Match_Score_Reward - punish
-					* Match_Miss_Punish;
+		if (scoreAndHits.score >= 0) {
+			scoreAndHits.score = Match_Level_Headless - scoreAndHits.score
+					* Match_Score_Reward - punish * Match_Miss_Punish;
 		}
-		return 0;
+		return scoreAndHits;
 	}
 
 	public void addPhone(String number, int type) {
@@ -406,10 +441,6 @@ public class Contact {
 
 	public void setLookupKey(String lookupKey) {
 		this.lookupKey = lookupKey;
-	}
-
-	public List<String> getFullNames() {
-		return fullNamesString;
 	}
 
 	public List<phoneStruct> getPhones() {

@@ -72,6 +72,33 @@ public class AppApplication extends Application {
 		keyBoardMaps.put('y', '9');
 		keyBoardMaps.put('z', '9');
 
+		keyBoardMaps.put('A', '2');
+		keyBoardMaps.put('B', '2');
+		keyBoardMaps.put('C', '2');
+		keyBoardMaps.put('D', '3');
+		keyBoardMaps.put('E', '3');
+		keyBoardMaps.put('F', '3');
+		keyBoardMaps.put('G', '4');
+		keyBoardMaps.put('H', '4');
+		keyBoardMaps.put('I', '4');
+		keyBoardMaps.put('J', '5');
+		keyBoardMaps.put('K', '5');
+		keyBoardMaps.put('L', '5');
+		keyBoardMaps.put('M', '6');
+		keyBoardMaps.put('N', '6');
+		keyBoardMaps.put('O', '6');
+		keyBoardMaps.put('P', '7');
+		keyBoardMaps.put('Q', '7');
+		keyBoardMaps.put('R', '7');
+		keyBoardMaps.put('S', '7');
+		keyBoardMaps.put('T', '8');
+		keyBoardMaps.put('U', '8');
+		keyBoardMaps.put('V', '8');
+		keyBoardMaps.put('W', '9');
+		keyBoardMaps.put('X', '9');
+		keyBoardMaps.put('Y', '9');
+		keyBoardMaps.put('Z', '9');
+
 		Intent intent = new Intent(this, ContactService.class);
 		startService(intent);
 
