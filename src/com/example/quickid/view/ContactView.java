@@ -67,6 +67,8 @@ public class ContactView extends FrameLayout {
 	}
 
 	public void build() {
+		phoneTextView.setText("");
+		pinyinTextView.setText("");
 		badge.assignContactUri(Contacts.getLookupUri(contact.getContactId(),
 				contact.getLookupKey()));
 		String nameString = contact.getName();

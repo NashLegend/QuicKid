@@ -194,8 +194,8 @@ public class ContactHelper {
 			contact.setLookupKey(lookupKey);
 			contact.setPhotoUri(photoUri);
 			contact.setStarred(starred);
-			contact.TIMES_CONTACTED = TIMES_CONTACTED;
-			contact.LAST_TIME_CONTACTED = LAST_TIME_CONTACTED;
+			contact.Times_Contacted = TIMES_CONTACTED;
+			contact.Last_Time_Contacted = LAST_TIME_CONTACTED;
 			StrequentContacts.add(contact);
 		}
 		cursor.close();
@@ -249,8 +249,8 @@ public class ContactHelper {
 			contact.setLookupKey(lookupKey);
 			contact.setPhotoUri(photoUri);
 			contact.setStarred(starred);
-			contact.TIMES_CONTACTED = TIMES_CONTACTED;
-			contact.LAST_TIME_CONTACTED = LAST_TIME_CONTACTED;
+			contact.Times_Contacted = TIMES_CONTACTED;
+			contact.Last_Time_Contacted = LAST_TIME_CONTACTED;
 			FrequentContacts.add(contact);
 		}
 		cursor.close();
@@ -290,9 +290,9 @@ public class ContactHelper {
 		public int compare(Contact lhs, Contact rhs) {
 
 			// 如果同是文件夹或者文件，则按名称排序
-			if (lhs.LAST_TIME_CONTACTED > rhs.LAST_TIME_CONTACTED) {
+			if (lhs.Last_Time_Contacted > rhs.Last_Time_Contacted) {
 				return -1;
-			} else if (lhs.LAST_TIME_CONTACTED == rhs.LAST_TIME_CONTACTED) {
+			} else if (lhs.Last_Time_Contacted == rhs.Last_Time_Contacted) {
 				return 0;
 			} else {
 				return 1;

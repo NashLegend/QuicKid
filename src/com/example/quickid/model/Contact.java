@@ -31,8 +31,13 @@ public class Contact {
 	private Uri lookupUri;
 	private boolean starred = false;
 
-	public int TIMES_CONTACTED = 0;
-	public long LAST_TIME_CONTACTED = 0l;
+	public int Last_Contact_Call_Type = 0;
+	public String Last_Contact_Number = "";
+	public int Last_Contact_Phone_Type = 0;
+	public long Last_Contact_Call_ID = 0;
+
+	public int Times_Contacted = 0;
+	public long Last_Time_Contacted = 0l;
 	public int type;
 	public String label;
 	public String number;
