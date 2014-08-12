@@ -12,6 +12,7 @@ import com.example.quickid.AppApplication;
 import com.example.quickid.R;
 import com.example.quickid.model.Contact;
 import com.example.quickid.model.Contact.PointPair;
+import com.example.quickid.util.ContactHelper;
 import com.example.quickid.util.IconContainer;
 
 import android.annotation.SuppressLint;
@@ -34,7 +35,9 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.QuickContactBadge;
 import android.widget.TextView;
@@ -49,6 +52,8 @@ public class CallLogView extends FrameLayout {
 	private TextView dateTextView;
 	private IconLoadTask task;
 	private ImageView typeImageView;
+	private ImageButton smsButton;
+	private View number_layoutView;
 
 	public CallLogView(Context context) {
 		super(context);
@@ -60,6 +65,10 @@ public class CallLogView extends FrameLayout {
 		phoneTextView = (TextView) findViewById(R.id.text_contact_phone);
 		typeImageView = (ImageView) findViewById(R.id.imageview_call_type);
 		dateTextView = (TextView) findViewById(R.id.textview_call_date);
+		smsButton = (ImageButton) findViewById(R.id.button_send_sms);
+		number_layoutView = findViewById(R.id.layout_phone_numbers);
+		smsButton.setOnClickListener(onClickListener);
+		number_layoutView.setOnClickListener(onClickListener);
 	}
 
 	public CallLogView(Context context, AttributeSet attrs) {
@@ -218,5 +227,22 @@ public class CallLogView extends FrameLayout {
 		}
 
 	}
+
+	OnClickListener onClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.button_send_sms:
+				ContactHelper.sendSMS(contact.Last_Contact_Number);
+				break;
+			case R.id.layout_phone_numbers:
+				ContactHelper.makePhoneCall(contact.Last_Contact_Number);
+				break;
+			default:
+				break;
+			}
+		}
+	};
 
 }

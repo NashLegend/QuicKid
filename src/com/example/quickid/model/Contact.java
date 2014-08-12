@@ -9,7 +9,7 @@ import android.text.TextUtils;
 
 import com.example.legendutils.Tools.TextUtil;
 import com.example.quickid.AppApplication;
-import com.example.quickid.model.Contact.phoneStruct;
+import com.example.quickid.model.Contact.PhoneStruct;
 
 /**
  * 毫无疑问，现在的匹配算法是愚蠢和原始的
@@ -25,7 +25,7 @@ public class Contact {
 	public List<String> abbreviationNumber = new ArrayList<String>();
 	// 以上三个列表在绝大多数情况下长度为一
 	private String name = "";
-	private ArrayList<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
+	private ArrayList<PhoneStruct> phones = new ArrayList<Contact.PhoneStruct>();
 	private long contactId = 0L;
 	private String lookupKey = "";
 	private String photoUri;
@@ -67,12 +67,12 @@ public class Contact {
 	public static final int Max_Reward_Times = 999;
 	public static final int Max_Punish_Times = 999;
 
-	public static class phoneStruct {
+	public static class PhoneStruct {
 		public String phoneNumber;
 		public int phoneType;
 		public String displayType;
 
-		public phoneStruct(String number, int type) {
+		public PhoneStruct(String number, int type) {
 			phoneNumber = number.replaceAll("^\\+86", "").replaceAll("[^\\d]+",
 					"");
 			phoneType = type;
@@ -115,9 +115,9 @@ public class Contact {
 		contact.setPhotoUri(photoUri);
 		contact.setLookupUri(lookupUri);
 		contact.setStarred(starred);
-		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
+		for (Iterator<PhoneStruct> iterator = phones.iterator(); iterator
 				.hasNext();) {
-			phoneStruct phone = iterator.next();
+			PhoneStruct phone = iterator.next();
 			contact.addPhone(phone.phoneNumber, phone.phoneType);
 		}
 		return contact;
@@ -241,7 +241,7 @@ public class Contact {
 		}
 
 		for (int i = 0; i < phones.size(); i++) {
-			phoneStruct phone = phones.get(i);
+			PhoneStruct phone = phones.get(i);
 			if (reg.equals(phone.phoneNumber)) {
 				scoreAndHits.nameIndex = i;
 				scoreAndHits.score = Match_Level_Complete;
@@ -410,7 +410,7 @@ public class Contact {
 		scoreAndHits.matchType = Match_Type_Phone;
 		// 不匹配姓名
 		for (int i = 0; i < phones.size(); i++) {
-			phoneStruct phone = phones.get(i);
+			PhoneStruct phone = phones.get(i);
 			int sco = phone.phoneNumber.indexOf(reg);
 			if (sco >= 0) {
 				int lost = phone.phoneNumber.length() - reg.length();
@@ -431,7 +431,7 @@ public class Contact {
 	}
 
 	public void addPhone(String number, int type) {
-		phoneStruct pStruct = new phoneStruct(number, type);
+		PhoneStruct pStruct = new PhoneStruct(number, type);
 		phones.add(pStruct);
 	}
 
@@ -466,11 +466,11 @@ public class Contact {
 		this.lookupKey = lookupKey;
 	}
 
-	public ArrayList<phoneStruct> getPhones() {
+	public ArrayList<PhoneStruct> getPhones() {
 		return phones;
 	}
 
-	public void setPhones(ArrayList<phoneStruct> phones) {
+	public void setPhones(ArrayList<PhoneStruct> phones) {
 		this.phones = phones;
 	}
 

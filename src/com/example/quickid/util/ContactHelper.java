@@ -1,29 +1,21 @@
 package com.example.quickid.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 
 import com.example.quickid.AppApplication;
-import com.example.quickid.adapter.ContactAdapter.ContactComparator;
 import com.example.quickid.model.Contact;
-import com.example.quickid.model.Contact.phoneStruct;
-import com.example.quickid.model.RecentContact;
+import com.example.quickid.model.Contact.PhoneStruct;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Vibrator;
-import android.provider.CallLog;
 import android.provider.CallLog.Calls;
-import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
-import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
 import android.text.TextUtils;
@@ -98,29 +90,36 @@ public class ContactHelper {
 			int duration = cursor.getInt(5);
 			String number = cursor.getString(6);
 			if (TextUtils.isEmpty(name)) {
-				Contact tmpContact = new Contact();
-				tmpContact.Times_Contacted = 1;
-				tmpContact.Last_Contact_Call_ID = callID;
-				tmpContact.Last_Contact_Call_Type = callType;
-				tmpContact.Last_Contact_Number = number;
-				tmpContact.Last_Contact_Phone_Type = numberType;
-				tmpContact.Last_Time_Contacted = date;
-				tmpContact.Last_Contact_Duration = duration;
-				recentContacts.add(tmpContact);
+				boolean matched = false;
+				for (Iterator<Contact> iterator = recentContacts.iterator(); iterator
+						.hasNext();) {
+					Contact con = iterator.next();
+					if (con.Last_Contact_Number.equals(number)) {
+						matched = true;
+						con.Times_Contacted++;
+						break;
+					}
+				}
+				if (!matched) {
+					Contact tmpContact = new Contact();
+					tmpContact.Times_Contacted = 1;
+					tmpContact.Last_Contact_Call_ID = callID;
+					tmpContact.Last_Contact_Call_Type = callType;
+					tmpContact.Last_Contact_Number = number;
+					tmpContact.Last_Contact_Phone_Type = numberType;
+					tmpContact.Last_Time_Contacted = date;
+					tmpContact.Last_Contact_Duration = duration;
+					recentContacts.add(tmpContact);
+				}
 			} else {
 				boolean matched = false;
-				match: for (Iterator<Contact> iterator = recentContacts
-						.iterator(); iterator.hasNext();) {
+				for (Iterator<Contact> iterator = recentContacts.iterator(); iterator
+						.hasNext();) {
 					Contact con = iterator.next();
-					ArrayList<phoneStruct> phones = con.getPhones();
-					for (Iterator<phoneStruct> iterator2 = phones.iterator(); iterator2
-							.hasNext();) {
-						phoneStruct phoneStruct = iterator2.next();
-						if (phoneStruct.phoneNumber.equals(number)) {
-							matched = true;
-							con.Times_Contacted++;
-							break match;
-						}
+					if (con.Last_Contact_Number.equals(number)) {
+						matched = true;
+						con.Times_Contacted++;
+						break;
 					}
 				}
 
@@ -128,13 +127,15 @@ public class ContactHelper {
 					match2: for (Iterator<Contact> iterator = AppApplication.AllContacts
 							.iterator(); iterator.hasNext();) {
 						Contact con = iterator.next();
-						ArrayList<phoneStruct> phones = con.getPhones();
-						for (Iterator<phoneStruct> iterator2 = phones
+						ArrayList<PhoneStruct> phones = con.getPhones();
+						for (Iterator<PhoneStruct> iterator2 = phones
 								.iterator(); iterator2.hasNext();) {
-							phoneStruct phoneStruct = iterator2.next();
+							PhoneStruct phoneStruct = iterator2.next();
 							if (phoneStruct.phoneNumber.equals(number)) {
 								matched = true;
 								Contact tmpContact = con.clone();
+								tmpContact
+										.setPhones(new ArrayList<Contact.PhoneStruct>());
 								tmpContact.Times_Contacted = 1;
 								tmpContact.Last_Contact_Call_ID = callID;
 								tmpContact.Last_Contact_Call_Type = callType;
@@ -312,6 +313,18 @@ public class ContactHelper {
 		intent.setAction(Intent.ACTION_CALL);
 		intent.setData(Uri.parse("tel:" + number));
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		AppApplication.globalApplication.startActivity(intent);
+	}
+
+	public static void sendSMS(String number) {
+		if (TextUtils.isEmpty(number) || number.length() < 3) {
+			return;
+		}
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_SENDTO);
+		intent.setData(Uri.parse("smsto:" + number));
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		// intent.putExtra("sms_body", "content_body");
 		AppApplication.globalApplication.startActivity(intent);
 	}
 }
