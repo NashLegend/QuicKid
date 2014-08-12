@@ -1,7 +1,11 @@
 package com.example.quickid.view;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 
 import com.example.quickid.AppApplication;
@@ -22,6 +26,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
+import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.Contacts;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -30,16 +35,20 @@ import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.QuickContactBadge;
 import android.widget.TextView;
 
+@SuppressLint("SimpleDateFormat")
 public class CallLogView extends FrameLayout {
 
 	private Contact contact;
 	private QuickContactBadge badge;
 	private TextView nameTextView;
 	private TextView phoneTextView;
+	private TextView dateTextView;
 	private IconLoadTask task;
+	private ImageView typeImageView;
 
 	public CallLogView(Context context) {
 		super(context);
@@ -49,6 +58,8 @@ public class CallLogView extends FrameLayout {
 		badge = (QuickContactBadge) findViewById(R.id.badge_contact_item);
 		nameTextView = (TextView) findViewById(R.id.text_contact_name);
 		phoneTextView = (TextView) findViewById(R.id.text_contact_phone);
+		typeImageView = (ImageView) findViewById(R.id.imageview_call_type);
+		dateTextView = (TextView) findViewById(R.id.textview_call_date);
 	}
 
 	public CallLogView(Context context, AttributeSet attrs) {
@@ -60,10 +71,23 @@ public class CallLogView extends FrameLayout {
 	}
 
 	public void build() {
-		if (!TextUtils.isEmpty(contact.getLookupKey())) {
-			badge.assignContactUri(Contacts.getLookupUri(
-					contact.getContactId(), contact.getLookupKey()));
+		switch (contact.Last_Contact_Call_Type) {
+		case Calls.OUTGOING_TYPE:
+			typeImageView
+					.setImageResource(R.drawable.ic_call_outgoing_holo_dark);
+			break;
+		case Calls.INCOMING_TYPE:
+			typeImageView
+					.setImageResource(R.drawable.ic_call_incoming_holo_dark);
+			break;
+		case Calls.MISSED_TYPE:
+			typeImageView.setImageResource(R.drawable.ic_call_missed_holo_dark);
+			break;
+
+		default:
+			break;
 		}
+		dateTextView.setText(getDateDescription(contact.Last_Time_Contacted));
 		String nameString = contact.getName();
 		nameTextView.setText(nameString);
 		if (TextUtils.isEmpty(contact.getName())) {
@@ -74,7 +98,43 @@ public class CallLogView extends FrameLayout {
 			nameTextView.setText(contact.getName());
 			phoneTextView.setText(contact.Last_Contact_Number);
 		}
+		if (!TextUtils.isEmpty(contact.getLookupKey())) {
+			badge.assignContactUri(Contacts.getLookupUri(
+					contact.getContactId(), contact.getLookupKey()));
+		}
 		loadAvatar();
+	}
+
+	private String getDateDescription(long mills) {
+		String dateString = "";
+		Calendar date = Calendar.getInstance();
+		date.setTimeInMillis(mills);
+
+		Calendar date2 = Calendar.getInstance();
+		date2.setTimeInMillis(System.currentTimeMillis());
+
+		DateFormat format;
+
+		if (mills / 86400000 != System.currentTimeMillis() / 86400000) {
+			if (date.get(Calendar.YEAR) == date2.get(Calendar.YEAR)) {
+				format = new SimpleDateFormat("M月d日 hh:mm");
+				dateString = format.format(date.getTime());
+			} else {
+				format = new SimpleDateFormat("yyyy年M月d日 hh:mm");
+				dateString = format.format(date.getTime());
+			}
+		} else {
+			long diff = System.currentTimeMillis() - mills;
+			if (diff > 1800000) {
+				format = new SimpleDateFormat("hh:mm");
+				dateString = format.format(date.getTime());
+			} else if (diff >= 60000) {
+				dateString = (diff / 60000) + "分钟前";
+			} else {
+				dateString = (diff / 1000) + "秒前";
+			}
+		}
+		return dateString;
 	}
 
 	private void loadAvatar() {

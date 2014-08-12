@@ -74,20 +74,13 @@ public class ContactView extends FrameLayout {
 		String nameString = contact.getName();
 		String phoneString = "";
 		if (contact.getPhones().size() > 0) {
-			phoneString = contact.getPhones().get(0).toString();
+			phoneString = contact.getPhones().get(0).phoneNumber;
 		}
 		nameTextView.setText(nameString);
+		phoneTextView.setText(phoneString);
 		switch (Display_Mode) {
 		case Display_Mode_Display:
-			phoneTextView.setText(phoneString);
-			break;
-		case Display_Mode_Recent:
-			if (TextUtils.isEmpty(contact.getName())) {
-				nameTextView.setText(contact.Last_Contact_Number);
-			} else {
-				nameTextView.setText(contact.getName());
-				phoneTextView.setText(contact.Last_Contact_Number);
-			}
+			
 			break;
 		case Display_Mode_Search:
 			if (contact.matchValue.matchLevel == Contact.Level_Complete) {
