@@ -538,6 +538,10 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
 		mDigits.getText().clear();
 	}
 
+	public String getDiapadNumber() {
+		return mDigits.getText().toString();
+	}
+
 	/**
 	 * This interface allows the DialpadFragment to tell its hosting Activity
 	 * when and when not to display the "dial" button. While this is logically

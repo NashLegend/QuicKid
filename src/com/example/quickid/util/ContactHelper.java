@@ -8,6 +8,7 @@ import java.util.Iterator;
 import com.example.quickid.AppApplication;
 import com.example.quickid.adapter.ContactAdapter.ContactComparator;
 import com.example.quickid.model.Contact;
+import com.example.quickid.model.Contact.phoneStruct;
 import com.example.quickid.model.RecentContact;
 
 import android.content.ContentResolver;
@@ -25,39 +26,9 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
+import android.text.TextUtils;
 
 public class ContactHelper {
-
-	public static ArrayList<String> getPossibleKeys(String key) {
-		ArrayList<String> list = new ArrayList<String>();
-		if (key.length() > 0) {
-			if (key.contains("1") || key.contains("0")) {
-				list.add(key);
-			} else {
-				int keyLen = key.length();
-				String[] words;
-				if (keyLen == 1) {
-					words = AppApplication.keyMaps.get(key.charAt(0));
-					for (int i = 0; i < words.length; i++) {
-						list.add(words[i]);
-					}
-				} else {
-					ArrayList<String> sonList = getPossibleKeys(key.substring(
-							0, key.length() - 1));
-					words = AppApplication.keyMaps
-							.get(key.charAt(key.length() - 1));
-					for (int i = 0; i < words.length; i++) {
-						for (Iterator<String> iterator = sonList.iterator(); iterator
-								.hasNext();) {
-							String sonStr = iterator.next();
-							list.add(sonStr + words[i]);
-						}
-					}
-				}
-			}
-		}
-		return list;
-	}
 
 	/**
 	 * 加载所有联系人
@@ -67,10 +38,9 @@ public class ContactHelper {
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
 		// 要使用RawContacts.CONTACT_ID而不是Contacts.CONTACT_ID
-		String[] PROJECTION = { RawContacts.CONTACT_ID,
-				Contacts.DISPLAY_NAME_PRIMARY, Contacts.LOOKUP_KEY,
-				Contacts.PHOTO_THUMBNAIL_URI, Phone.NUMBER, Phone.TYPE,
-				Contacts.STARRED };
+		String[] PROJECTION = { RawContacts.CONTACT_ID, Contacts.DISPLAY_NAME,
+				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
+				Phone.NUMBER, Phone.TYPE, Contacts.STARRED };
 		Cursor cursor = resolver.query(Phone.CONTENT_URI, PROJECTION, null,
 				null, Contacts.SORT_KEY_PRIMARY);
 		String preLookupKey = "";
@@ -101,52 +71,87 @@ public class ContactHelper {
 			// No Phone Number Found
 		}
 		cursor.close();
-
 		AppApplication.AllContacts = AllContacts;
-		// TODO notify
-		Intent intent = new Intent();
-		intent.setAction(Consts.Action_All_Contacts_Changed);
-		AppApplication.globalApplication.sendBroadcast(intent);
 	}
 
 	/**
 	 * 加载通话记录
 	 */
-	synchronized public static void loadCallLogs() {
-		ArrayList<RecentContact> AllRecentContacts = new ArrayList<RecentContact>();
+	synchronized public static void loadCallLogsCombined() {
+		if (AppApplication.AllContacts.size() == 0) {
+			loadContacts();
+		}
+		ArrayList<Contact> recentContacts = new ArrayList<Contact>();
 		String[] projection = { Calls._ID, Calls.TYPE, Calls.CACHED_NAME,
 				Calls.CACHED_NUMBER_TYPE, Calls.DATE, Calls.DURATION,
 				Calls.NUMBER };
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
 		Cursor cursor = resolver.query(Calls.CONTENT_URI, projection, null,
-				null, null);
+				null, Calls.DEFAULT_SORT_ORDER);
 		while (cursor.moveToNext()) {
-			RecentContact contact = new RecentContact();
-
-			long contractID = cursor.getInt(0);
+			long callID = cursor.getInt(0);
 			int callType = cursor.getInt(1);
 			String name = cursor.getString(2);
 			int numberType = cursor.getInt(3);
 			long date = cursor.getLong(4);
 			int duration = cursor.getInt(5);
 			String number = cursor.getString(6);
+			if (TextUtils.isEmpty(name)) {
+				Contact tmpContact = new Contact();
+				tmpContact.Times_Contacted = 1;
+				tmpContact.Last_Contact_Call_ID = callID;
+				tmpContact.Last_Contact_Call_Type = callType;
+				tmpContact.Last_Contact_Number = number;
+				tmpContact.Last_Contact_Phone_Type = numberType;
+				tmpContact.Last_Time_Contacted = date;
+				tmpContact.Last_Contact_Duration = duration;
+				recentContacts.add(tmpContact);
+			} else {
+				boolean matched = false;
+				match: for (Iterator<Contact> iterator = recentContacts
+						.iterator(); iterator.hasNext();) {
+					Contact con = iterator.next();
+					ArrayList<phoneStruct> phones = con.getPhones();
+					for (Iterator<phoneStruct> iterator2 = phones.iterator(); iterator2
+							.hasNext();) {
+						phoneStruct phoneStruct = iterator2.next();
+						if (phoneStruct.phoneNumber.equals(number)) {
+							matched = true;
+							con.Times_Contacted++;
+							break match;
+						}
+					}
+				}
 
-			contact.setContractID(contractID);
-			contact.setCallType(callType);
-			contact.setDate(date);
-			contact.setDuration(duration);
-			contact.setName(name);
-			contact.setNumber(number);
-			contact.setNumberType(numberType);
-			AllRecentContacts.add(contact);
+				if (!matched) {
+					match2: for (Iterator<Contact> iterator = AppApplication.AllContacts
+							.iterator(); iterator.hasNext();) {
+						Contact con = iterator.next();
+						ArrayList<phoneStruct> phones = con.getPhones();
+						for (Iterator<phoneStruct> iterator2 = phones
+								.iterator(); iterator2.hasNext();) {
+							phoneStruct phoneStruct = iterator2.next();
+							if (phoneStruct.phoneNumber.equals(number)) {
+								matched = true;
+								Contact tmpContact = con.clone();
+								tmpContact.Times_Contacted = 1;
+								tmpContact.Last_Contact_Call_ID = callID;
+								tmpContact.Last_Contact_Call_Type = callType;
+								tmpContact.Last_Contact_Number = number;
+								tmpContact.Last_Contact_Phone_Type = numberType;
+								tmpContact.Last_Time_Contacted = date;
+								tmpContact.Last_Contact_Duration = duration;
+								recentContacts.add(tmpContact);
+								break match2;
+							}
+						}
+					}
+				}
+			}
 		}
 		cursor.close();
-		AppApplication.AllRecentContacts = AllRecentContacts;
-		// TODO notify
-		Intent intent = new Intent();
-		intent.setAction(Consts.Action_All_Contacts_Changed);
-		AppApplication.globalApplication.sendBroadcast(intent);
+		AppApplication.RecentContacts = recentContacts;
 	}
 
 	public static void removeCallLog(long call_ID) {
@@ -174,7 +179,7 @@ public class ContactHelper {
 		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME,
 				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
 				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED,
-				Contacts.STARRED };
+				Contacts.STARRED, Contacts.PHOTO_ID };
 		ContentResolver resolver = AppApplication.globalApplication
 				.getContentResolver();
 		// 显示最近联系人和收藏的联系人
@@ -199,7 +204,6 @@ public class ContactHelper {
 			StrequentContacts.add(contact);
 		}
 		cursor.close();
-		AppApplication.StrequentContacts = StrequentContacts;
 		// notify
 	}
 
@@ -217,86 +221,6 @@ public class ContactHelper {
 				.getContentResolver();
 		if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, null, null) > 0) {
 			// delete ok
-		}
-	}
-
-	/**
-	 * 加载最近联系人（和收藏联系人）
-	 */
-	public static void loadFrequent() {
-		ArrayList<Contact> FrequentContacts = new ArrayList<Contact>();
-		String[] projection = { Contacts._ID, Contacts.DISPLAY_NAME,
-				Contacts.LOOKUP_KEY, Contacts.PHOTO_THUMBNAIL_URI,
-				Contacts.TIMES_CONTACTED, Contacts.LAST_TIME_CONTACTED,
-				Contacts.STARRED };
-		ContentResolver resolver = AppApplication.globalApplication
-				.getContentResolver();
-		// 显示最近联系人，不知为何不能排序，只能按通讯次数排序
-		Cursor cursor = resolver.query(
-				Uri.withAppendedPath(Contacts.CONTENT_URI, "frequent"),
-				projection, null, null, null);
-		while (cursor.moveToNext()) {
-			Contact contact = new Contact();
-			long contractID = cursor.getInt(0);
-			String displayName = cursor.getString(1);
-			String lookupKey = cursor.getString(2);
-			String photoUri = cursor.getString(3);
-			int TIMES_CONTACTED = cursor.getInt(4);
-			long LAST_TIME_CONTACTED = cursor.getLong(5);
-			boolean starred = cursor.getInt(6) == 1;
-			contact.setContactId(contractID);
-			contact.setName(displayName);
-			contact.setLookupKey(lookupKey);
-			contact.setPhotoUri(photoUri);
-			contact.setStarred(starred);
-			contact.Times_Contacted = TIMES_CONTACTED;
-			contact.Last_Time_Contacted = LAST_TIME_CONTACTED;
-			FrequentContacts.add(contact);
-		}
-		cursor.close();
-		sortContactByLAST_TIME_CONTACTED(FrequentContacts);
-		AppApplication.StrequentContacts = FrequentContacts;
-		// notify
-	}
-
-	public static void removeFrequent(long contact_ID) {
-		ContentResolver resolver = AppApplication.globalApplication
-				.getContentResolver();
-		if (resolver.delete(
-				Uri.withAppendedPath(Contacts.CONTENT_URI, "frequent"),
-				Contacts._ID, new String[] { String.valueOf(contact_ID) }) > 0) {
-			// delete ok
-		}
-	}
-
-	public static void clearFrequent() {
-		ContentResolver resolver = AppApplication.globalApplication
-				.getContentResolver();
-		if (resolver.delete(
-				Uri.withAppendedPath(Contacts.CONTENT_URI, "frequent"), null,
-				null) > 0) {
-			// delete ok
-		}
-	}
-
-	public static void sortContactByLAST_TIME_CONTACTED(ArrayList<Contact> lis) {
-		ContactComparator comparator = new ContactComparator();
-		Collections.sort(lis, comparator);
-	}
-
-	public static class ContactComparator implements Comparator<Contact> {
-
-		@Override
-		public int compare(Contact lhs, Contact rhs) {
-
-			// 如果同是文件夹或者文件，则按名称排序
-			if (lhs.Last_Time_Contacted > rhs.Last_Time_Contacted) {
-				return -1;
-			} else if (lhs.Last_Time_Contacted == rhs.Last_Time_Contacted) {
-				return 0;
-			} else {
-				return 1;
-			}
 		}
 	}
 
@@ -380,4 +304,11 @@ public class ContactHelper {
 		vibrator.vibrate(duaration);
 	}
 
+	public static void makePhoneCall(String number) {
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_CALL);
+		intent.setData(Uri.parse("tel:" + number));
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		AppApplication.globalApplication.startActivity(intent);
+	}
 }

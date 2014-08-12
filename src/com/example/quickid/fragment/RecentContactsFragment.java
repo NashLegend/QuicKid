@@ -20,11 +20,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-public class StrequentDialFragment extends Fragment {
+public class RecentContactsFragment extends Fragment {
 	private ContactAdapter adapter;
 	private ListView listView;
 
-	public StrequentDialFragment() {
+	public RecentContactsFragment() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -35,23 +35,23 @@ public class StrequentDialFragment extends Fragment {
 				false);
 		listView = (ListView) layoutView
 				.findViewById(R.id.listview_frequent_contact);
-		adapter = new ContactAdapter(getActivity(),ContactView.Display_Mode_Recent);
-		adapter.setContacts(AppApplication.StrequentContacts);
+		adapter = new ContactAdapter(getActivity(),
+				ContactView.Display_Mode_Recent);
+		adapter.setContacts(AppApplication.RecentContacts);
 		listView.setAdapter(adapter);
 		registeReceiver();
-		loadStrequent();
+		loadCallLogs();
 		return layoutView;
 	}
 
-	private void loadStrequent() {
-		ContactHelper.loadStrequent();
-		adapter.setContacts(AppApplication.StrequentContacts);
+	private void loadCallLogs() {
+		adapter.setContacts(AppApplication.RecentContacts);
 		adapter.notifyDataSetChanged();
 	}
 
 	private void registeReceiver() {
 		IntentFilter filter = new IntentFilter();
-		filter.addAction(Consts.Action_Strequent_Contacts_Changed);
+		filter.addAction(Consts.Action_CallLogs_Changed);
 		getActivity().registerReceiver(receiver, filter);
 	}
 
@@ -70,7 +70,7 @@ public class StrequentDialFragment extends Fragment {
 		super.onResume();
 		if (needRetrive && adapter != null) {
 			needRetrive = false;
-			loadStrequent();
+			loadCallLogs();
 		}
 	}
 
@@ -91,10 +91,9 @@ public class StrequentDialFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (Consts.Action_Strequent_Contacts_Changed.equals(intent
-					.getAction())) {
+			if (Consts.Action_CallLogs_Changed.equals(intent.getAction())) {
 				if (isVisible()) {
-					loadStrequent();
+					loadCallLogs();
 				} else {
 					needRetrive = true;
 				}

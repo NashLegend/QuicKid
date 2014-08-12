@@ -79,16 +79,21 @@ public class ContactView extends FrameLayout {
 		nameTextView.setText(nameString);
 		switch (Display_Mode) {
 		case Display_Mode_Display:
+			phoneTextView.setText(phoneString);
+			break;
 		case Display_Mode_Recent:
-			if (contact.hasNumber() > 0) {
-				phoneTextView.setText(phoneString);
+			if (TextUtils.isEmpty(contact.getName())) {
+				nameTextView.setText(contact.Last_Contact_Number);
+			} else {
+				nameTextView.setText(contact.getName());
+				phoneTextView.setText(contact.Last_Contact_Number);
 			}
 			break;
 		case Display_Mode_Search:
 			if (contact.matchValue.matchLevel == Contact.Level_Complete) {
 				if (contact.matchValue.matchType == Contact.Match_Type_Name) {
-					String str = contact.fullNameNumberWithoutSpace
-							.get(contact.matchValue.nameIndex);
+					String str = contact.fullNamesString.get(
+							contact.matchValue.nameIndex).replaceAll(" ", "");
 					SpannableStringBuilder builder = new SpannableStringBuilder(
 							str);
 					ForegroundColorSpan redSpan = new ForegroundColorSpan(

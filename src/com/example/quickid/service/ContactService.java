@@ -33,9 +33,6 @@ public class ContactService extends Service {
 		AppApplication.globalApplication.getContentResolver()
 				.registerContentObserver(Calls.CONTENT_URI, true,
 						new CallLogsContactObserver());
-		AppApplication.globalApplication.getContentResolver()
-				.registerContentObserver(Contacts.CONTENT_STREQUENT_URI, true,
-						new StrequentContactObserver());
 		super.onCreate();
 	}
 
@@ -67,45 +64,9 @@ public class ContactService extends Service {
 
 			@Override
 			public void run() {
-				ContactHelper.loadCallLogs();
+				ContactHelper.loadContacts();
 				Intent intent = new Intent();
 				intent.setAction(Consts.Action_All_Contacts_Changed);
-				getApplicationContext().sendBroadcast(intent);
-			}
-		};
-	}
-
-	private final class StrequentContactObserver extends ContentObserver {
-
-		private boolean inwaitstate = false;
-		private Timer updateTimer;
-
-		public StrequentContactObserver() {
-			super(mHandler);
-		}
-
-		@Override
-		public void onChange(boolean selfChange) {
-			if (inwaitstate) {
-				TimerUtil.clearTimeOut(updateTimer);
-			}
-			inwaitstate = true;
-			updateTimer = TimerUtil.setTimeOut(runnable, 3000);
-			super.onChange(selfChange);
-		}
-
-		@Override
-		public void onChange(boolean selfChange, Uri uri) {
-			super.onChange(selfChange, uri);
-		}
-
-		private Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-				ContactHelper.loadStrequent();
-				Intent intent = new Intent();
-				intent.setAction(Consts.Action_Strequent_Contacts_Changed);
 				getApplicationContext().sendBroadcast(intent);
 			}
 		};
@@ -136,10 +97,9 @@ public class ContactService extends Service {
 		}
 
 		private Runnable runnable = new Runnable() {
-
 			@Override
 			public void run() {
-				ContactHelper.loadCallLogs();
+				ContactHelper.loadCallLogsCombined();
 				Intent intent = new Intent();
 				intent.setAction(Consts.Action_CallLogs_Changed);
 				getApplicationContext().sendBroadcast(intent);

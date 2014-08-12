@@ -1,7 +1,7 @@
 package com.example.quickid;
 
 import com.example.quickid.fragment.DialpadFragment;
-import com.example.quickid.fragment.StrequentDialFragment;
+import com.example.quickid.fragment.RecentContactsFragment;
 import com.example.quickid.fragment.SearchFragment;
 import com.example.quickid.fragment.DialpadFragment.OnDialpadQueryChangedListener;
 import com.example.quickid.interfacc.OnListFragmentScrolledListener;
@@ -28,7 +28,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		OnListFragmentScrolledListener, OnDialpadQueryChangedListener {
 
 	private DialpadFragment mDialpadFragment;
-	private StrequentDialFragment mFrequentDialFragment;
+	private RecentContactsFragment mFrequentDialFragment;
 	private SearchFragment mSearchFragment;
 	private ImageButton mDialpadButton;
 	private ImageButton mDialButton;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		if (savedInstanceState == null) {
 			getFragmentManager()
 					.beginTransaction()
-					.add(R.id.layout_dial, new StrequentDialFragment(),
+					.add(R.id.layout_dial, new RecentContactsFragment(),
 							TAG_RECENT_DIAL_FRAGMENT)
 					.add(R.id.layout_dialer_panel, new DialpadFragment(),
 							TAG_DIALPAD_FRAGMENT).commit();
@@ -67,8 +67,8 @@ public class MainActivity extends Activity implements OnClickListener,
 					.beginTransaction();
 			transaction.hide(mDialpadFragment);
 			transaction.commit();
-		} else if (fragment instanceof StrequentDialFragment) {
-			mFrequentDialFragment = (StrequentDialFragment) fragment;
+		} else if (fragment instanceof RecentContactsFragment) {
+			mFrequentDialFragment = (RecentContactsFragment) fragment;
 		}
 		super.onAttachFragment(fragment);
 	}
@@ -163,7 +163,12 @@ public class MainActivity extends Activity implements OnClickListener,
 			showDialpad(true);
 			break;
 		case R.id.button_dial:
-			hideDialpad(true, false);
+			if (isDialpadShowing()) {
+				String number = mDialpadFragment.getDiapadNumber();
+				if (!TextUtils.isEmpty(number)) {
+					ContactHelper.makePhoneCall(number);
+				}
+			}
 			break;
 		default:
 			break;

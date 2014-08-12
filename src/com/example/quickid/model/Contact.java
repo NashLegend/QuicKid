@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.example.legendutils.Tools.TextUtil;
 import com.example.quickid.AppApplication;
+import com.example.quickid.model.Contact.phoneStruct;
 
 /**
  * 毫无疑问，现在的匹配算法是愚蠢和原始的
@@ -24,7 +25,7 @@ public class Contact {
 	public List<String> abbreviationNumber = new ArrayList<String>();
 	// 以上三个列表在绝大多数情况下长度为一
 	private String name = "";
-	private List<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
+	private ArrayList<phoneStruct> phones = new ArrayList<Contact.phoneStruct>();
 	private long contactId = 0L;
 	private String lookupKey = "";
 	private String photoUri;
@@ -35,7 +36,7 @@ public class Contact {
 	public String Last_Contact_Number = "";
 	public int Last_Contact_Phone_Type = 0;
 	public long Last_Contact_Call_ID = 0;
-
+	public int Last_Contact_Duration = 0;
 	public int Times_Contacted = 0;
 	public long Last_Time_Contacted = 0l;
 	public int type;
@@ -72,7 +73,8 @@ public class Contact {
 		public String displayType;
 
 		public phoneStruct(String number, int type) {
-			phoneNumber = number.replaceAll("^\\+86", "");
+			phoneNumber = number.replaceAll("^\\+86", "").replaceAll("[^\\d]+",
+					"");
 			phoneType = type;
 		}
 	}
@@ -103,6 +105,22 @@ public class Contact {
 
 	public Contact() {
 
+	}
+
+	public Contact clone() {
+		Contact contact = new Contact();
+		contact.setContactId(contactId);
+		contact.setName(name);
+		contact.setLookupKey(lookupKey);
+		contact.setPhotoUri(photoUri);
+		contact.setLookupUri(lookupUri);
+		contact.setStarred(starred);
+		for (Iterator<phoneStruct> iterator = phones.iterator(); iterator
+				.hasNext();) {
+			phoneStruct phone = iterator.next();
+			contact.addPhone(phone.phoneNumber, phone.phoneType);
+		}
+		return contact;
 	}
 
 	@Override
@@ -448,11 +466,11 @@ public class Contact {
 		this.lookupKey = lookupKey;
 	}
 
-	public List<phoneStruct> getPhones() {
+	public ArrayList<phoneStruct> getPhones() {
 		return phones;
 	}
 
-	public void setPhones(List<phoneStruct> phones) {
+	public void setPhones(ArrayList<phoneStruct> phones) {
 		this.phones = phones;
 	}
 
