@@ -3,6 +3,7 @@ package com.example.quickid.fragment;
 import com.example.quickid.AppApplication;
 import com.example.quickid.R;
 import com.example.quickid.R.layout;
+import com.example.quickid.adapter.CallLogsAdapter;
 import com.example.quickid.adapter.ContactAdapter;
 import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
@@ -21,7 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 public class RecentContactsFragment extends Fragment {
-	private ContactAdapter adapter;
+	private CallLogsAdapter adapter;
 	private ListView listView;
 
 	public RecentContactsFragment() {
@@ -35,8 +36,7 @@ public class RecentContactsFragment extends Fragment {
 				false);
 		listView = (ListView) layoutView
 				.findViewById(R.id.listview_frequent_contact);
-		adapter = new ContactAdapter(getActivity(),
-				ContactView.Display_Mode_Recent);
+		adapter = new CallLogsAdapter(getActivity());
 		adapter.setContacts(AppApplication.RecentContacts);
 		listView.setAdapter(adapter);
 		registeReceiver();
