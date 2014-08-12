@@ -305,6 +305,9 @@ public class ContactHelper {
 	}
 
 	public static void makePhoneCall(String number) {
+		if (TextUtils.isEmpty(number) || number.length() < 3) {
+			return;
+		}
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_CALL);
 		intent.setData(Uri.parse("tel:" + number));
