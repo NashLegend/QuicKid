@@ -2,28 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_phone_numbers"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="@dimen/phone_item_height"
     android:layout_centerVertical="true"
     android:background="@drawable/bg_contact_item_normal"
     android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal"
-    android:padding="8dp" >
+    android:padding="@dimen/phone_item_padding" >
 
     <QuickContactBadge
         android:id="@+id/badge_contact_item"
         style="@style/quickContactBadgeStyle"
-        android:layout_width="?android:attr/listPreferredItemHeight"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_width="@dimen/phone_content_height"
+        android:layout_height="@dimen/phone_content_height"
         android:background="#fff000"
         android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="@dimen/phone_item_padding"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:minHeight="@dimen/phone_content_height"
         android:orientation="vertical" >
 
         <TextView
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textSize="16sp" />
+            android:textSize="@dimen/phone_name_size" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textSize="12sp" />
+                android:textSize="@dimen/phone_number_size" />
         </LinearLayout>
 
         <LinearLayout
@@ -67,20 +67,21 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="4dp"
                 android:singleLine="true"
-                android:textSize="12sp" />
+                android:textSize="@dimen/phone_date_size" />
         </LinearLayout>
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="?android:attr/listPreferredItemHeight"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-        android:layout_gravity="center" >
+        android:layout_width="@dimen/phone_content_height"
+        android:layout_height="@dimen/phone_content_height"
+        android:gravity="center" >
 
         <ImageButton
             android:id="@+id/button_send_sms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/sms_icon_width"
+            android:layout_height="@dimen/sms_icon_width"
             android:background="#00000000"
+            android:scaleType="centerInside"
             android:src="@drawable/sms" />
     </RelativeLayout>
 

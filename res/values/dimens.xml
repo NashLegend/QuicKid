@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <dimen name="phone_item_height">80dp</dimen>
+    <dimen name="phone_item_padding">8dp</dimen>
+    <dimen name="phone_content_height">64dp</dimen>
+    <dimen name="badge_width">64dp</dimen>
+    <dimen name="phone_name_size">16sp</dimen>
+    <dimen name="phone_number_size">12dp</dimen>
+    <dimen name="phone_date_size">12dp</dimen>
+    <dimen name="sms_icon_width">48dp</dimen>
     <dimen name="dialpad_horizontal_margin">4dp</dimen>
     <dimen name="dialpad_digits_text_size">35sp</dimen>
     <dimen name="fake_action_bar_height">60dp</dimen>

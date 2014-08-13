@@ -7,7 +7,9 @@ import java.util.Iterator;
 import com.example.quickid.AppApplication;
 import com.example.quickid.R;
 import com.example.quickid.model.Contact;
+import com.example.quickid.model.Contact.PhoneStruct;
 import com.example.quickid.model.Contact.PointPair;
+import com.example.quickid.util.ContactHelper;
 import com.example.quickid.util.IconContainer;
 
 import android.annotation.SuppressLint;
@@ -29,7 +31,10 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.QuickContactBadge;
 import android.widget.TextView;
 
@@ -40,8 +45,11 @@ public class ContactView extends FrameLayout {
 	private TextView nameTextView;
 	private TextView pinyinTextView;
 	private TextView phoneTextView;
+	private LinearLayout phoneLayout;
 	private IconLoadTask task;
 	public int Display_Mode = 0;
+	private ImageButton smsButton;
+	private LinearLayout phoneViews;
 	public static final int Display_Mode_Recent = 1;
 	public static final int Display_Mode_Search = 2;
 	public static final int Display_Mode_Display = 3;
@@ -52,9 +60,12 @@ public class ContactView extends FrameLayout {
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.layout_contact_item, this);
 		badge = (QuickContactBadge) findViewById(R.id.badge_contact_item);
+		smsButton = (ImageButton) findViewById(R.id.button_send_sms);
 		nameTextView = (TextView) findViewById(R.id.text_contact_name);
 		pinyinTextView = (TextView) findViewById(R.id.text_contact_pinyin);
 		phoneTextView = (TextView) findViewById(R.id.text_contact_phone);
+		phoneViews = (LinearLayout) findViewById(R.id.layout_more_phones);
+		phoneLayout = (LinearLayout) findViewById(R.id.layout_phone_numbers);
 		this.Display_Mode = display;
 	}
 
@@ -67,6 +78,8 @@ public class ContactView extends FrameLayout {
 	}
 
 	public void build() {
+		phoneViews.removeAllViews();
+		boolean shouldDisplayMorePhones = true;
 		phoneTextView.setText("");
 		pinyinTextView.setText("");
 		badge.assignContactUri(Contacts.getLookupUri(contact.getContactId(),
@@ -80,7 +93,7 @@ public class ContactView extends FrameLayout {
 		phoneTextView.setText(phoneString);
 		switch (Display_Mode) {
 		case Display_Mode_Display:
-			
+
 			break;
 		case Display_Mode_Search:
 			if (contact.matchValue.matchLevel == Contact.Level_Complete) {
@@ -95,6 +108,7 @@ public class ContactView extends FrameLayout {
 							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					pinyinTextView.setText(builder);
 				} else {
+					shouldDisplayMorePhones = false;
 					String str = contact.getPhones().get(
 							contact.matchValue.nameIndex).phoneNumber;
 					SpannableStringBuilder builder = new SpannableStringBuilder(
@@ -106,6 +120,7 @@ public class ContactView extends FrameLayout {
 					phoneTextView.setText(builder);
 				}
 			} else if (contact.matchValue.matchLevel == Contact.Level_Headless) {
+				shouldDisplayMorePhones = false;
 				String str = contact.getPhones().get(
 						contact.matchValue.nameIndex).phoneNumber;
 				SpannableStringBuilder builder = new SpannableStringBuilder(str);
@@ -138,7 +153,18 @@ public class ContactView extends FrameLayout {
 		default:
 			break;
 		}
+		if (shouldDisplayMorePhones) {
+			for (int i = 1; i < contact.getPhones().size(); i++) {
+				PhoneStruct phoneStruct = contact.getPhones().get(i);
+				PhoneView phoneView = new PhoneView(getContext());
+				phoneView.setPhone(phoneStruct);
+				phoneViews.addView(phoneView);
+			}
+		}
 		loadAvatar();
+
+		phoneLayout.setOnClickListener(onClickListener);
+		smsButton.setOnClickListener(onClickListener);
 	}
 
 	private ArrayList<PointPair> getColoredString(ArrayList<String> strings,
@@ -260,5 +286,29 @@ public class ContactView extends FrameLayout {
 		}
 
 	}
+
+	OnClickListener onClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.layout_phone_numbers:
+				if (contact.getPhones().size() > 0) {
+					ContactHelper
+							.makePhoneCall(contact.getPhones().get(0).phoneNumber);
+				}
+				break;
+			case R.id.button_send_sms:
+				if (contact.getPhones().size() > 0) {
+					ContactHelper
+							.sendSMS(contact.getPhones().get(0).phoneNumber);
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+	};
 
 }

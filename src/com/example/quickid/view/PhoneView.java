@@ -11,11 +11,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class PhoneView extends FrameLayout {
 
 	TextView numberText;
+	LinearLayout layoutRoot;
 	ImageButton smsButton;
 	PhoneStruct phone;
 
@@ -23,15 +25,17 @@ public class PhoneView extends FrameLayout {
 		super(context);
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.layout_contact_item, this);
+		inflater.inflate(R.layout.layout_phone_view, this);
 		smsButton = (ImageButton) findViewById(R.id.button_send_sms);
+		layoutRoot = (LinearLayout) findViewById(R.id.layout_phone);
 		numberText = (TextView) findViewById(R.id.textview_phone_numbers);
 		smsButton.setOnClickListener(onClickListener);
-		numberText.setOnClickListener(onClickListener);
+		layoutRoot.setOnClickListener(onClickListener);
 	}
 
 	public void setPhone(PhoneStruct p) {
 		this.phone = p;
+		numberText.setText(phone.phoneNumber);
 	}
 
 	OnClickListener onClickListener = new OnClickListener() {
@@ -42,7 +46,7 @@ public class PhoneView extends FrameLayout {
 			case R.id.button_send_sms:
 				ContactHelper.sendSMS(numberText.getText().toString());
 				break;
-			case R.id.layout_phone_numbers:
+			case R.id.layout_phone:
 				ContactHelper.makePhoneCall(numberText.getText().toString());
 				break;
 			default:
