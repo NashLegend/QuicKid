@@ -3,9 +3,11 @@
     android:id="@+id/layout_contact_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#fff000"
+    android:background="@android:color/white"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" >
 
     <LinearLayout
         android:id="@+id/layout_phone_numbers"
@@ -78,5 +80,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/contact_divider_color" />
 
 </LinearLayout>

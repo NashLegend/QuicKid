@@ -75,7 +75,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 		@Override
 		public int compare(Contact lhs, Contact rhs) {
 
-			// 如果同是文件夹或者文件，则按名称排序
 			if (lhs.matchValue.score > rhs.matchValue.score) {
 				return -1;
 			} else if (lhs.matchValue.score == rhs.matchValue.score) {

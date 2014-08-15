@@ -29,7 +29,7 @@
         android:background="@color/actionbar_background_color" >
 
         <ImageButton
-            android:id="@+id/call_history_button"
+            android:id="@+id/button_call_history"
             android:layout_width="@dimen/fake_menu_button_min_width"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|start"
@@ -57,7 +57,7 @@
             android:visibility="gone" />
 
         <ImageButton
-            android:id="@+id/overflow_menu"
+            android:id="@+id/button_overflow_menu"
             android:layout_width="@dimen/fake_menu_button_min_width"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|end"

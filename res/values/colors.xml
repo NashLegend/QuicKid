@@ -7,6 +7,8 @@
     <color name="background_dialpad">#ffffff</color>
     <color name="dialpad_secondary_text_color">#8b8b8b</color>
     <color name="dialpad_separator_line_color">#dadada</color>
+    <color name="contact_splitter_color">#999c9c9c</color>
+    <color name="contact_divider_color">#559c9c9c</color>
 
     <array name="letter_tile_colors">
         <item>#33b679</item>

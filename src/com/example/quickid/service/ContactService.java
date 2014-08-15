@@ -109,25 +109,21 @@ public class ContactService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		System.out.println("onstartcomand");
 		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		System.out.println("onbind");
 		return null;
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		System.out.println("onunbind");
 		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onDestroy() {
-		System.out.println("ondestroy");
 		super.onDestroy();
 	}
 
