@@ -3,8 +3,13 @@
 	<!-- Base application theme, dependent on API level. This theme is replaced 
 		by AppBaseTheme from res/values-vXX/styles.xml on newer devices. -->
 	<style name="AppBaseTheme" parent="android:Theme.Holo.Light">
-		<!-- Theme customizations available in newer API levels can go in res/values-vXX/styles.xml, 
-			while customizations related to backward-compatibility can go here. -->
+		<item name="android:actionBarStyle">@style/MyActionBar</item>
+	</style>
+
+	<style name="AppBaseThemeWithActionBar" parent="android:Theme.Holo.Light"></style>
+
+	<style name="MyActionBar" parent="android:Widget.Holo.Light.ActionBar.Solid">
+		<item name="android:displayOptions">none</item>
 	</style>
 
 	<!-- Application theme. -->
@@ -53,20 +58,20 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:gravity">center</item>
 	</style>
-	    <style name="DialpadKeyLettersStyle">
-        <item name="android:textColor">@color/dialpad_secondary_text_color</item>
-        <item name="android:textSize">@dimen/dialpad_key_letters_size</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:layout_width">@dimen/dialpad_key_letters_width</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingLeft">@dimen/dialpad_number_to_letters_padding</item>
-    </style>
-        <style name="DialpadKeyStarPoundStyle">
-        <item name="android:textColor">@color/dialpad_secondary_text_color</item>
-        <item name="android:textSize">@dimen/dialpad_key_star_pound_size</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:layout_width">@dimen/dialpad_key_numbers_width</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:gravity">center</item>
-    </style>
+	<style name="DialpadKeyLettersStyle">
+		<item name="android:textColor">@color/dialpad_secondary_text_color</item>
+		<item name="android:textSize">@dimen/dialpad_key_letters_size</item>
+		<item name="android:fontFamily">sans-serif-light</item>
+		<item name="android:layout_width">@dimen/dialpad_key_letters_width</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:paddingLeft">@dimen/dialpad_number_to_letters_padding</item>
+	</style>
+	<style name="DialpadKeyStarPoundStyle">
+		<item name="android:textColor">@color/dialpad_secondary_text_color</item>
+		<item name="android:textSize">@dimen/dialpad_key_star_pound_size</item>
+		<item name="android:fontFamily">sans-serif-light</item>
+		<item name="android:layout_width">@dimen/dialpad_key_numbers_width</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:gravity">center</item>
+	</style>
 </resources>

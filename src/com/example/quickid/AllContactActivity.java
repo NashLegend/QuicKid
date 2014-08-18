@@ -60,7 +60,6 @@ public class AllContactActivity extends Activity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            ToastUtil.showToast(context, "Changed");
             updateData();
         }
 
