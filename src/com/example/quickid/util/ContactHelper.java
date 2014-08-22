@@ -13,6 +13,7 @@ import com.example.quickid.model.Contact;
 import com.example.quickid.model.Contact.PhoneStruct;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -356,6 +357,15 @@ public class ContactHelper {
                     .getSystemService(Context.VIBRATOR_SERVICE);
         }
         vibrator.vibrate(duaration);
+    }
+
+    public static void openContactDetail(long id) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        Uri contactUri = ContentUris.withAppendedId(Contacts.CONTENT_URI, id);
+        intent.setData(contactUri);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        AppApplication.globalApplication.startActivity(intent);
     }
 
     public static void makePhoneCall(String number) {

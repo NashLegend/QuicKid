@@ -1,3 +1,4 @@
+
 package com.example.quickid.view;
 
 import java.io.InputStream;
@@ -40,275 +41,276 @@ import android.widget.TextView;
 
 public class ContactView extends FrameLayout {
 
-	private Contact contact;
-	private QuickContactBadge badge;
-	private TextView nameTextView;
-	private TextView pinyinTextView;
-	private TextView phoneTextView;
-	private LinearLayout phoneLayout;
-	private IconLoadTask task;
-	public int Display_Mode = 0;
-	private ImageButton smsButton;
-	private LinearLayout phoneViews;
-	public static final int Display_Mode_Recent = 1;
-	public static final int Display_Mode_Search = 2;
-	public static final int Display_Mode_Display = 3;
+    private Contact contact;
+    private QuickContactBadge badge;
+    private TextView nameTextView;
+    private TextView pinyinTextView;
+    private TextView phoneTextView;
+    private LinearLayout phoneLayout;
+    private IconLoadTask task;
+    public int Display_Mode = 0;
+    private ImageButton smsButton;
+    private LinearLayout phoneViews;
+    public static final int Display_Mode_Recent = 1;
+    public static final int Display_Mode_Search = 2;
+    public static final int Display_Mode_Display = 3;
 
-	public ContactView(Context context, int display) {
-		super(context);
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.layout_contact_item, this);
-		badge = (QuickContactBadge) findViewById(R.id.badge_contact_item);
-		smsButton = (ImageButton) findViewById(R.id.button_send_sms);
-		nameTextView = (TextView) findViewById(R.id.text_contact_name);
-		pinyinTextView = (TextView) findViewById(R.id.text_contact_pinyin);
-		phoneTextView = (TextView) findViewById(R.id.text_contact_phone);
-		phoneViews = (LinearLayout) findViewById(R.id.layout_more_phones);
-		phoneLayout = (LinearLayout) findViewById(R.id.layout_phone_numbers);
-		this.Display_Mode = display;
-	}
+    public ContactView(Context context, int display) {
+        super(context);
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.layout_contact_item, this);
+        badge = (QuickContactBadge) findViewById(R.id.badge_contact_item);
+        smsButton = (ImageButton) findViewById(R.id.button_send_sms);
+        nameTextView = (TextView) findViewById(R.id.text_contact_name);
+        pinyinTextView = (TextView) findViewById(R.id.text_contact_pinyin);
+        phoneTextView = (TextView) findViewById(R.id.text_contact_phone);
+        phoneViews = (LinearLayout) findViewById(R.id.layout_more_phones);
+        phoneLayout = (LinearLayout) findViewById(R.id.layout_phone_numbers);
+        this.Display_Mode = display;
+    }
 
-	public ContactView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
+    public ContactView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-	public ContactView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-	}
+    public ContactView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
 
-	public void build() {
-		phoneViews.removeAllViews();
-		boolean shouldDisplayMorePhones = true;
-		phoneTextView.setText("");
-		pinyinTextView.setText("");
-		badge.assignContactUri(Contacts.getLookupUri(contact.getContactId(),
-				contact.getLookupKey()));
-		String nameString = contact.getName();
-		String phoneString = "";
-		if (contact.getPhones().size() > 0) {
-			phoneString = contact.getPhones().get(0).phoneNumber;
-		}
-		nameTextView.setText(nameString);
-		phoneTextView.setText(phoneString);
-		switch (Display_Mode) {
-		case Display_Mode_Display:
+    public void build() {
+        phoneViews.removeAllViews();
+        boolean shouldDisplayMorePhones = true;
+        phoneTextView.setText("");
+        pinyinTextView.setText("");
+        badge.assignContactUri(Contacts.getLookupUri(contact.getContactId(),
+                contact.getLookupKey()));
+        String nameString = contact.getName();
+        String phoneString = "";
+        if (contact.getPhones().size() > 0) {
+            phoneString = contact.getPhones().get(0).phoneNumber;
+        }
+        nameTextView.setText(nameString);
+        switch (Display_Mode) {
+            case Display_Mode_Display:
+                smsButton.setVisibility(View.GONE);
+                phoneTextView.setVisibility(View.GONE);
+                shouldDisplayMorePhones = false;
+                break;
+            case Display_Mode_Search:
+                smsButton.setVisibility(View.VISIBLE);
+                phoneTextView.setVisibility(View.VISIBLE);
+                phoneTextView.setText(phoneString);
+                if (contact.matchValue.matchLevel == Contact.Level_Complete) {
+                    if (contact.matchValue.matchType == Contact.Match_Type_Name) {
+                        String str = contact.fullNamesString.get(
+                                contact.matchValue.nameIndex).replaceAll(" ", "");
+                        SpannableStringBuilder builder = new SpannableStringBuilder(
+                                str);
+                        ForegroundColorSpan redSpan = new ForegroundColorSpan(
+                                Color.RED);
+                        builder.setSpan(redSpan, 0, str.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        pinyinTextView.setText(builder);
+                    } else {
+                        shouldDisplayMorePhones = false;
+                        String str = contact.getPhones().get(
+                                contact.matchValue.nameIndex).phoneNumber;
+                        SpannableStringBuilder builder = new SpannableStringBuilder(
+                                str);
+                        ForegroundColorSpan redSpan = new ForegroundColorSpan(
+                                Color.RED);
+                        builder.setSpan(redSpan, 0, str.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        phoneTextView.setText(builder);
+                    }
+                } else if (contact.matchValue.matchLevel == Contact.Level_Headless) {
+                    shouldDisplayMorePhones = false;
+                    String str = contact.getPhones().get(
+                            contact.matchValue.nameIndex).phoneNumber;
+                    SpannableStringBuilder builder = new SpannableStringBuilder(str);
+                    ForegroundColorSpan redSpan = new ForegroundColorSpan(Color.RED);
+                    builder.setSpan(redSpan,
+                            contact.matchValue.pairs.get(0).strIndex,
+                            contact.matchValue.pairs.get(0).strIndex
+                                    + contact.matchValue.reg.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    phoneTextView.setText(builder);
+                } else {
+                    String str = contact.fullNamesString.get(
+                            contact.matchValue.nameIndex).replaceAll(" ", "");
+                    ArrayList<PointPair> pa = getColoredString(
+                            contact.fullNameNumber
+                                    .get(contact.matchValue.nameIndex),
+                            contact.matchValue.pairs, "#FF0000");
+                    SpannableStringBuilder builder = new SpannableStringBuilder(str);
+                    for (Iterator<PointPair> iterator = pa.iterator(); iterator
+                            .hasNext();) {
+                        PointPair pointPair = iterator.next();
+                        builder.setSpan(new ForegroundColorSpan(Color.RED),
+                                pointPair.listIndex, pointPair.strIndex,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    pinyinTextView.setText(builder);
+                }
+                break;
 
-			break;
-		case Display_Mode_Search:
-			if (contact.matchValue.matchLevel == Contact.Level_Complete) {
-				if (contact.matchValue.matchType == Contact.Match_Type_Name) {
-					String str = contact.fullNamesString.get(
-							contact.matchValue.nameIndex).replaceAll(" ", "");
-					SpannableStringBuilder builder = new SpannableStringBuilder(
-							str);
-					ForegroundColorSpan redSpan = new ForegroundColorSpan(
-							Color.RED);
-					builder.setSpan(redSpan, 0, str.length(),
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					pinyinTextView.setText(builder);
-				} else {
-					shouldDisplayMorePhones = false;
-					String str = contact.getPhones().get(
-							contact.matchValue.nameIndex).phoneNumber;
-					SpannableStringBuilder builder = new SpannableStringBuilder(
-							str);
-					ForegroundColorSpan redSpan = new ForegroundColorSpan(
-							Color.RED);
-					builder.setSpan(redSpan, 0, str.length(),
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					phoneTextView.setText(builder);
-				}
-			} else if (contact.matchValue.matchLevel == Contact.Level_Headless) {
-				shouldDisplayMorePhones = false;
-				String str = contact.getPhones().get(
-						contact.matchValue.nameIndex).phoneNumber;
-				SpannableStringBuilder builder = new SpannableStringBuilder(str);
-				ForegroundColorSpan redSpan = new ForegroundColorSpan(Color.RED);
-				builder.setSpan(redSpan,
-						contact.matchValue.pairs.get(0).strIndex,
-						contact.matchValue.pairs.get(0).strIndex
-								+ contact.matchValue.reg.length(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				phoneTextView.setText(builder);
-			} else {
-				String str = contact.fullNamesString.get(
-						contact.matchValue.nameIndex).replaceAll(" ", "");
-				ArrayList<PointPair> pa = getColoredString(
-						contact.fullNameNumber
-								.get(contact.matchValue.nameIndex),
-						contact.matchValue.pairs, "#FF0000");
-				SpannableStringBuilder builder = new SpannableStringBuilder(str);
-				for (Iterator<PointPair> iterator = pa.iterator(); iterator
-						.hasNext();) {
-					PointPair pointPair = iterator.next();
-					builder.setSpan(new ForegroundColorSpan(Color.RED),
-							pointPair.listIndex, pointPair.strIndex,
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-				pinyinTextView.setText(builder);
-			}
-			break;
+            default:
+                break;
+        }
+        if (shouldDisplayMorePhones) {
+            for (int i = 1; i < contact.getPhones().size(); i++) {
+                PhoneStruct phoneStruct = contact.getPhones().get(i);
+                PhoneView phoneView = new PhoneView(getContext());
+                phoneView.setPhone(phoneStruct);
+                phoneViews.addView(phoneView);
+            }
+        }
+        loadAvatar();
 
-		default:
-			break;
-		}
-		if (shouldDisplayMorePhones) {
-			for (int i = 1; i < contact.getPhones().size(); i++) {
-				PhoneStruct phoneStruct = contact.getPhones().get(i);
-				PhoneView phoneView = new PhoneView(getContext());
-				phoneView.setPhone(phoneStruct);
-				phoneViews.addView(phoneView);
-			}
-		}
-		loadAvatar();
+        phoneLayout.setOnClickListener(onClickListener);
+        smsButton.setOnClickListener(onClickListener);
+    }
 
-		phoneLayout.setOnClickListener(onClickListener);
-		smsButton.setOnClickListener(onClickListener);
-	}
+    private ArrayList<PointPair> getColoredString(ArrayList<String> strings,
+            ArrayList<PointPair> pairs, String color) {
+        int k = 0;
+        int idx = -1;
+        int crtHead = -1;
+        int crtTail = -1;
+        ArrayList<PointPair> ps = new ArrayList<PointPair>();
+        for (int i = 0; i < strings.size(); i++) {
+            String str = strings.get(i);
+            for (int j = 0; j < str.length() && k < pairs.size(); j++) {
+                idx++;
+                if (pairs.get(k).listIndex == i && pairs.get(k).strIndex == j) {
+                    if (crtHead == -1) {
+                        crtHead = idx;
+                        crtTail = idx + 1;
+                    } else {
+                        if (crtTail == idx) {
+                            crtTail = idx + 1;
+                        }
+                    }
+                    k++;
+                } else {
+                    if (crtHead != -1) {
+                        ps.add(new PointPair(crtHead, crtTail));
+                        crtHead = -1;
+                        crtTail = -1;
+                    }
+                }
+            }
+        }
+        if (crtHead != -1) {
+            ps.add(new PointPair(crtHead, crtTail));
+            crtHead = -1;
+            crtTail = -1;
+        }
+        return ps;
+    }
 
-	private ArrayList<PointPair> getColoredString(ArrayList<String> strings,
-			ArrayList<PointPair> pairs, String color) {
-		int k = 0;
-		int idx = -1;
-		int crtHead = -1;
-		int crtTail = -1;
-		ArrayList<PointPair> ps = new ArrayList<PointPair>();
-		for (int i = 0; i < strings.size(); i++) {
-			String str = strings.get(i);
-			for (int j = 0; j < str.length() && k < pairs.size(); j++) {
-				idx++;
-				if (pairs.get(k).listIndex == i && pairs.get(k).strIndex == j) {
-					if (crtHead == -1) {
-						crtHead = idx;
-						crtTail = idx + 1;
-					} else {
-						if (crtTail == idx) {
-							crtTail = idx + 1;
-						}
-					}
-					k++;
-				} else {
-					if (crtHead != -1) {
-						ps.add(new PointPair(crtHead, crtTail));
-						crtHead = -1;
-						crtTail = -1;
-					}
-				}
-			}
-		}
-		if (crtHead != -1) {
-			ps.add(new PointPair(crtHead, crtTail));
-			crtHead = -1;
-			crtTail = -1;
-		}
-		return ps;
-	}
+    private void loadAvatar() {
+        badge.setImageResource(R.drawable.ic_contact_picture_holo_light);
+        if (!TextUtils.isEmpty(contact.getPhotoUri())) {
+            if (task != null && task.getStatus() == Status.RUNNING) {
+                task.cancel(true);
+            }
+            Bitmap bmp = IconContainer.get(contact);
+            if (bmp == null) {
+                task = new IconLoadTask();
+                task.execute(contact);
+            } else {
+                badge.setImageBitmap(bmp);
+            }
+        } else {
+            setDefaultAvatar();
+        }
+    }
 
-	private void loadAvatar() {
-		badge.setImageResource(R.drawable.ic_contact_picture_holo_light);
-		if (!TextUtils.isEmpty(contact.getPhotoUri())) {
-			if (task != null && task.getStatus() == Status.RUNNING) {
-				task.cancel(true);
-			}
-			Bitmap bmp = IconContainer.get(contact);
-			if (bmp == null) {
-				task = new IconLoadTask();
-				task.execute(contact);
-			} else {
-				badge.setImageBitmap(bmp);
-			}
-		} else {
-			setDefaultAvatar();
-		}
-	}
+    private static TypedArray sColors;
+    private static int sDefaultColor;
+    private static final int NUM_OF_TILE_COLORS = 8;
 
-	private static TypedArray sColors;
-	private static int sDefaultColor;
-	private static final int NUM_OF_TILE_COLORS = 8;
+    @SuppressLint("Recycle")
+    private void setDefaultAvatar() {
+        if (sColors == null) {
+            sColors = getResources().obtainTypedArray(
+                    R.array.letter_tile_colors);
+            sDefaultColor = getResources().getColor(
+                    R.color.letter_tile_default_color);
+        }
+        badge.setBackgroundColor(pickColor(contact.getName()));
+        badge.setImageResource(R.drawable.ic_list_item_avatar);
+    }
 
-	@SuppressLint("Recycle")
-	private void setDefaultAvatar() {
-		if (sColors == null) {
-			sColors = getResources().obtainTypedArray(
-					R.array.letter_tile_colors);
-			sDefaultColor = getResources().getColor(
-					R.color.letter_tile_default_color);
-		}
-		badge.setBackgroundColor(pickColor(contact.getName()));
-		badge.setImageResource(R.drawable.ic_list_item_avatar);
-	}
+    private int pickColor(final String identifier) {
+        if (TextUtils.isEmpty(identifier)) {
+            return sDefaultColor;
+        }
+        final int color = Math.abs(identifier.hashCode()) % NUM_OF_TILE_COLORS;
+        return sColors.getColor(color, sDefaultColor);
+    }
 
-	private int pickColor(final String identifier) {
-		if (TextUtils.isEmpty(identifier)) {
-			return sDefaultColor;
-		}
-		final int color = Math.abs(identifier.hashCode()) % NUM_OF_TILE_COLORS;
-		return sColors.getColor(color, sDefaultColor);
-	}
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
 
-	public void setContact(Contact contact) {
-		this.contact = contact;
-	}
+    public Contact getContact() {
+        return contact;
+    }
 
-	public Contact getContact() {
-		return contact;
-	}
+    class IconLoadTask extends AsyncTask<Contact, Integer, Bitmap> {
 
-	class IconLoadTask extends AsyncTask<Contact, Integer, Bitmap> {
+        Contact originalContact;
 
-		Contact originalContact;
+        @Override
+        protected Bitmap doInBackground(Contact... params) {
+            originalContact = params[0];
+            Uri uri = ContentUris.withAppendedId(Contacts.CONTENT_URI,
+                    contact.getContactId());
+            InputStream input = Contacts.openContactPhotoInputStream(
+                    AppApplication.getApplicationContentResolver(), uri);
+            Bitmap bmp = BitmapFactory.decodeStream(input);
+            if (bmp != null) {
+                IconContainer.put(originalContact, bmp);
+            }
+            return bmp;
+        }
 
-		@Override
-		protected Bitmap doInBackground(Contact... params) {
-			originalContact = params[0];
-			Uri uri = ContentUris.withAppendedId(Contacts.CONTENT_URI,
-					contact.getContactId());
-			InputStream input = Contacts.openContactPhotoInputStream(
-					AppApplication.getApplicationContentResolver(), uri);
-			Bitmap bmp = BitmapFactory.decodeStream(input);
-			if (bmp != null) {
-				IconContainer.put(originalContact, bmp);
-			}
-			return bmp;
-		}
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (contact.equals(this.originalContact)) {
+                if (result != null) {
+                    badge.setImageBitmap(result);
+                } else {
+                    badge.setImageResource(R.drawable.ic_list_item_avatar);
+                }
+            }
+            super.onPostExecute(result);
+        }
 
-		@Override
-		protected void onPostExecute(Bitmap result) {
-			if (contact.equals(this.originalContact)) {
-				if (result != null) {
-					badge.setImageBitmap(result);
-				} else {
-					badge.setImageResource(R.drawable.ic_list_item_avatar);
-				}
-			}
-			super.onPostExecute(result);
-		}
+    }
 
-	}
+    OnClickListener onClickListener = new OnClickListener() {
 
-	OnClickListener onClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.layout_phone_numbers:
+                    ContactHelper.openContactDetail(contact.getContactId());
+                    break;
+                case R.id.button_send_sms:
+                    if (contact.getPhones().size() > 0) {
+                        ContactHelper
+                                .sendSMS(contact.getPhones().get(0).phoneNumber);
+                    }
+                    break;
 
-		@Override
-		public void onClick(View v) {
-			switch (v.getId()) {
-			case R.id.layout_phone_numbers:
-				if (contact.getPhones().size() > 0) {
-					ContactHelper
-							.makePhoneCall(contact.getPhones().get(0).phoneNumber);
-				}
-				break;
-			case R.id.button_send_sms:
-				if (contact.getPhones().size() > 0) {
-					ContactHelper
-							.sendSMS(contact.getPhones().get(0).phoneNumber);
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
-	};
+                default:
+                    break;
+            }
+        }
+    };
 
 }
