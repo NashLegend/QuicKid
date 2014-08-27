@@ -298,7 +298,11 @@ public class ContactView extends FrameLayout {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.layout_phone_numbers:
-                    ContactHelper.openContactDetail(contact.getContactId());
+                    if (Display_Mode == Display_Mode_Display) {
+                        ContactHelper.openContactDetail(contact.getContactId());
+                    } else if (Display_Mode == Display_Mode_Search) {
+                        ContactHelper.makePhoneCall(contact.getPhones().get(0).phoneNumber);
+                    }
                     break;
                 case R.id.button_send_sms:
                     if (contact.getPhones().size() > 0) {
