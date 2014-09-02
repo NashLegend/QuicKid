@@ -101,6 +101,10 @@ public class ContactView extends FrameLayout {
                 smsButton.setVisibility(View.VISIBLE);
                 phoneTextView.setVisibility(View.VISIBLE);
                 phoneTextView.setText(phoneString);
+                if (contact.matchValue.nameIndex < 0
+                        || contact.matchValue.nameIndex > contact.fullNamesString.size() - 1) {
+                    break;
+                }
                 if (contact.matchValue.matchLevel == Contact.Level_Complete) {
                     if (contact.matchValue.matchType == Contact.Match_Type_Name) {
                         String str = contact.fullNamesString.get(
