@@ -10,4 +10,10 @@
         android:background="@android:color/white"
         android:divider="@null" />
 
+    <com.example.quickid.view.SideBar
+        android:id="@+id/sidebar_all_contacts"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true" />
+
 </RelativeLayout>
