@@ -168,7 +168,7 @@ public class MainActivity extends Activity implements OnClickListener,
             case R.id.button_dial:
                 if (isDialpadShowing()) {
                     String number = mDialpadFragment.getDiapadNumber();
-                    if (!TextUtils.isEmpty(number) && number.length() > 3) {
+                    if (!TextUtils.isEmpty(number) && number.length() >= 3) {
                         ContactHelper.makePhoneCall(number);
                     }
                 }
