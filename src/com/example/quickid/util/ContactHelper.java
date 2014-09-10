@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
@@ -136,6 +137,8 @@ public class ContactHelper {
             long date = cursor.getLong(4);
             int duration = cursor.getInt(5);
             String number = cursor.getString(6);
+            // 会不会漏下啊，name不为空，又已经不在联系人里面了
+            // TODO
             if (TextUtils.isEmpty(name)) {
                 boolean matched = false;
                 for (Iterator<Contact> iterator = recentContacts.iterator(); iterator
@@ -202,12 +205,23 @@ public class ContactHelper {
         AppApplication.RecentContacts = recentContacts;
     }
 
-    public static void removeCallLog(long call_ID) {
+    public static void deleteCallLogByCallID(long call_ID) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, Calls._ID,
+        if (resolver.delete(Contacts.CONTENT_URI, Calls._ID,
                 new String[] {
                     String.valueOf(call_ID)
+                }) > 0) {
+            // delete ok
+        }
+    }
+
+    public static void deleteCallLogByNumber(String number) {
+        ContentResolver resolver = AppApplication.globalApplication
+                .getContentResolver();
+        if (resolver.delete(Contacts.CONTENT_URI, Calls.NUMBER,
+                new String[] {
+                    number
                 }) > 0) {
             // delete ok
         }

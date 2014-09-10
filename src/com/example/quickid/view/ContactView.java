@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.AsyncTask.Status;
 import android.provider.ContactsContract.Contacts;
 import android.text.Spannable;
@@ -32,6 +33,7 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -172,8 +174,9 @@ public class ContactView extends FrameLayout {
         }
         loadAvatar();
 
-        phoneLayout.setOnClickListener(onClickListener);
         smsButton.setOnClickListener(onClickListener);
+        phoneLayout.setClickable(true);
+        phoneLayout.setOnTouchListener(new OnShortLongClickListener());
     }
 
     private ArrayList<PointPair> getColoredString(ArrayList<String> strings,
@@ -293,7 +296,10 @@ public class ContactView extends FrameLayout {
             }
             super.onPostExecute(result);
         }
+    }
 
+    private void onLongClick() {
+        //TODO
     }
 
     OnClickListener onClickListener = new OnClickListener() {
@@ -301,24 +307,57 @@ public class ContactView extends FrameLayout {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.layout_phone_numbers:
-                    if (Display_Mode == Display_Mode_Display) {
-                        ContactHelper.openContactDetail(contact.getContactId());
-                    } else if (Display_Mode == Display_Mode_Search) {
-                        ContactHelper.makePhoneCall(contact.getPhones().get(0).phoneNumber);
-                    }
-                    break;
                 case R.id.button_send_sms:
                     if (contact.getPhones().size() > 0) {
                         ContactHelper
                                 .sendSMS(contact.getPhones().get(0).phoneNumber);
                     }
                     break;
-
                 default:
                     break;
             }
         }
     };
+
+    class OnShortLongClickListener implements OnTouchListener {
+        long longDura = 1000L;
+        long shortDura = 300L;
+        long startTime = 0L;
+        Handler handler = new Handler();
+        Runnable longPressRunnable = new Runnable() {
+            public void run() {
+                onLongClick();
+            }
+        };
+
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    startTime = System.currentTimeMillis();
+                    handler.removeCallbacks(longPressRunnable);
+                    handler.postDelayed(longPressRunnable, longDura);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    handler.removeCallbacks(longPressRunnable);
+                    if (System.currentTimeMillis() - startTime < shortDura) {
+                        if (Display_Mode == Display_Mode_Display) {
+                            ContactHelper.openContactDetail(contact.getContactId());
+                        } else if (Display_Mode == Display_Mode_Search) {
+                            ContactHelper.makePhoneCall(contact.getPhones().get(0).phoneNumber);
+                        }
+                    }
+                    break;
+                case MotionEvent.ACTION_CANCEL:
+                    handler.removeCallbacks(longPressRunnable);
+                    break;
+
+                default:
+                    break;
+            }
+            return false;
+        }
+    }
 
 }

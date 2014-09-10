@@ -26,7 +26,7 @@ public class Contact {
     // 以上三个列表在绝大多数情况下长度为一
     private String name = "";
     private ArrayList<PhoneStruct> phones = new ArrayList<Contact.PhoneStruct>();
-    private long contactId = 0L;
+    private long contactId = -1L;
     private String lookupKey = "";
     private String photoUri;
     private Uri lookupUri;
