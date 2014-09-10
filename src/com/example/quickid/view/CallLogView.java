@@ -109,7 +109,6 @@ public class CallLogView extends FrameLayout {
         if (TextUtils.isEmpty(contact.getName())) {
             nameTextView.setText(contact.Last_Contact_Number);
             phoneTextView.setText("");
-
         } else {
             nameTextView.setText(contact.getName());
             phoneTextView.setText(contact.Last_Contact_Number);

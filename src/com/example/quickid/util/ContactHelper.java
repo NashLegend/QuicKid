@@ -205,10 +205,21 @@ public class ContactHelper {
         AppApplication.RecentContacts = recentContacts;
     }
 
+    public static void deleteContactsByID(long contact_id) {
+        ContentResolver resolver = AppApplication.globalApplication
+                .getContentResolver();
+        if (resolver.delete(Contacts.CONTENT_URI, Contacts._ID + "=?",
+                new String[] {
+                    String.valueOf(contact_id)
+                }) > 0) {
+            // delete ok
+        }
+    }
+
     public static void deleteCallLogByCallID(long call_ID) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Contacts.CONTENT_URI, Calls._ID,
+        if (resolver.delete(Calls.CONTENT_URI, Calls._ID + "=?",
                 new String[] {
                     String.valueOf(call_ID)
                 }) > 0) {
@@ -219,11 +230,15 @@ public class ContactHelper {
     public static void deleteCallLogByNumber(String number) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Contacts.CONTENT_URI, Calls.NUMBER,
+        System.out.println(CallLog.CONTENT_URI);
+        System.out.println(Calls.CONTENT_URI);
+        if (resolver.delete(Calls.CONTENT_URI, Calls.NUMBER + "=?",
                 new String[] {
                     number
                 }) > 0) {
-            // delete ok
+            System.out.println("delete ok");
+        } else {
+            System.out.println("delete failed");
         }
     }
 
@@ -273,10 +288,10 @@ public class ContactHelper {
         // notify
     }
 
-    public static void removeStrequent(long contact_ID) {
+    public static void deleteStrequent(long contact_ID) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, Contacts._ID,
+        if (resolver.delete(Contacts.CONTENT_STREQUENT_URI, Contacts._ID + "=?",
                 new String[] {
                     String.valueOf(contact_ID)
                 }) > 0) {
