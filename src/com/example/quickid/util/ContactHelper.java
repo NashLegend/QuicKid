@@ -230,15 +230,12 @@ public class ContactHelper {
     public static void deleteCallLogByNumber(String number) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        System.out.println(CallLog.CONTENT_URI);
-        System.out.println(Calls.CONTENT_URI);
         if (resolver.delete(Calls.CONTENT_URI, Calls.NUMBER + "=?",
                 new String[] {
                     number
                 }) > 0) {
-            System.out.println("delete ok");
         } else {
-            System.out.println("delete failed");
+            
         }
     }
 

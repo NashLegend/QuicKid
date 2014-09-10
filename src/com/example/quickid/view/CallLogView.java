@@ -234,12 +234,13 @@ public class CallLogView extends FrameLayout {
     }
 
     CharSequence[] items = {
-            "Make a phone call", "Send SMS", "Delete log", "See contact"
+            "Make a phone call", "Send SMS", "Delete log", "See contact", "Delete all"
     };
     static final int MAKE_PHONE_CALL = 0;
     static final int SEND_SMS = 1;
     static final int DELETE_LOG = 2;
     static final int SEE_CONTACT = 3;
+    static final int DELETE_ALL = 4;
 
     private void onLongClick() {
         // TODO
@@ -263,7 +264,9 @@ public class CallLogView extends FrameLayout {
                                     ContactHelper.openContactDetail(contact.getContactId());
                                 }
                                 break;
-
+                            case DELETE_ALL:
+                                ContactHelper.clearCallLogs();
+                                break;
                             default:
                                 break;
                         }

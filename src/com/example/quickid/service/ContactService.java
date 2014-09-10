@@ -9,13 +9,11 @@ import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
 
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.Contacts;
 
@@ -49,7 +47,6 @@ public class ContactService extends Service {
 
         @Override
         public void onChange(boolean selfChange) {
-            System.out.println("!!!!!!!!");
             if (inwaitstate) {
                 TimerUtil.clearTimeOut(updateTimer);
             }
@@ -86,7 +83,6 @@ public class ContactService extends Service {
 
         @Override
         public void onChange(boolean selfChange) {
-            System.out.println("!@@@@@@@@@@!!!!!!");
             if (inwaitstate) {
                 TimerUtil.clearTimeOut(updateTimer);
             }
