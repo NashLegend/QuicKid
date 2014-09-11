@@ -243,7 +243,6 @@ public class CallLogView extends FrameLayout {
     static final int DELETE_ALL = 4;
 
     private void onLongClick() {
-        // TODO
         new AlertDialog.Builder(getContext()).setTitle("")
                 .setItems(items, new DialogInterface.OnClickListener() {
 

@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Vibrator;
-import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
@@ -27,7 +26,6 @@ import android.provider.ContactsContract.PhoneLookup;
 import android.provider.ContactsContract.RawContacts;
 import android.text.TextUtils;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
 public class ContactHelper {
 
@@ -205,38 +203,33 @@ public class ContactHelper {
         AppApplication.RecentContacts = recentContacts;
     }
 
-    public static void deleteContactsByID(long contact_id) {
+    public static int deleteContactsByID(long contact_id) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Contacts.CONTENT_URI, Contacts._ID + "=?",
-                new String[] {
-                    String.valueOf(contact_id)
-                }) > 0) {
-            // delete ok
-        }
+        System.out.println(contact_id);
+        int res = resolver.delete(ContentUris.withAppendedId(Contacts.CONTENT_URI, contact_id),
+                null, null);
+        return res;
     }
 
-    public static void deleteCallLogByCallID(long call_ID) {
+    public static int deleteCallLogByCallID(long call_ID) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Calls.CONTENT_URI, Calls._ID + "=?",
+        int res = resolver.delete(Calls.CONTENT_URI, Calls._ID + "=?",
                 new String[] {
                     String.valueOf(call_ID)
-                }) > 0) {
-            // delete ok
-        }
+                });
+        return res;
     }
 
-    public static void deleteCallLogByNumber(String number) {
+    public static int deleteCallLogByNumber(String number) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        if (resolver.delete(Calls.CONTENT_URI, Calls.NUMBER + "=?",
+        int res = resolver.delete(Calls.CONTENT_URI, Calls.NUMBER + " =?",
                 new String[] {
                     number
-                }) > 0) {
-        } else {
-            
-        }
+                });
+        return res;
     }
 
     public static void clearCallLogs() {

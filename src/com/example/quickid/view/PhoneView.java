@@ -45,7 +45,7 @@ public class PhoneView extends FrameLayout {
     }
 
     private void onLongClick() {
-        // TODO
+        // do nothing
     }
 
     OnClickListener onClickListener = new OnClickListener() {

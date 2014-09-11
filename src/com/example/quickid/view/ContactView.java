@@ -14,8 +14,10 @@ import com.example.quickid.util.ContactHelper;
 import com.example.quickid.util.IconContainer;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -298,8 +300,46 @@ public class ContactView extends FrameLayout {
         }
     }
 
+    CharSequence[] items = {
+            "Make a phone call", "Send SMS", "Delete contact", "See contact"
+    };
+    static final int MAKE_PHONE_CALL = 0;
+    static final int SEND_SMS = 1;
+    static final int DELETE_CONTACT = 2;
+    static final int SEE_CONTACT = 3;
+
     private void onLongClick() {
-        //TODO
+        new AlertDialog.Builder(getContext()).setTitle("")
+                .setItems(items, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case MAKE_PHONE_CALL:
+                                if (contact.getPhones().size() > 0) {
+                                    ContactHelper
+                                            .makePhoneCall(contact.getPhones().get(0).phoneNumber);
+                                }
+                                break;
+                            case SEND_SMS:
+                                if (contact.getPhones().size() > 0) {
+                                    ContactHelper
+                                            .sendSMS(contact.getPhones().get(0).phoneNumber);
+                                }
+                                break;
+                            case DELETE_CONTACT:
+                                if (ContactHelper.deleteContactsByID(contact.getContactId())>0) {
+                                    //TODO notify
+                                }
+                                break;
+                            case SEE_CONTACT:
+                                ContactHelper.openContactDetail(contact.getContactId());
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }).create().show();
     }
 
     OnClickListener onClickListener = new OnClickListener() {
