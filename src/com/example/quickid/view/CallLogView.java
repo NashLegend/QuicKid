@@ -13,6 +13,7 @@ import com.example.quickid.AppApplication;
 import com.example.quickid.R;
 import com.example.quickid.model.Contact;
 import com.example.quickid.model.Contact.PointPair;
+import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
 import com.example.quickid.util.IconContainer;
 
@@ -21,6 +22,7 @@ import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -256,7 +258,14 @@ public class CallLogView extends FrameLayout {
                                 ContactHelper.sendSMS(contact.Last_Contact_Number);
                                 break;
                             case DELETE_LOG:
-                                ContactHelper.deleteCallLogByNumber(contact.Last_Contact_Number);
+                                if (ContactHelper
+                                        .deleteCallLogByNumber(contact.Last_Contact_Number) > 0) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Consts.Action_Delete_One_Call_Log);
+                                    intent.putExtra(Consts.Extra_Calllog_Number,
+                                            contact.Last_Contact_Number);
+                                    getContext().sendBroadcast(intent);
+                                }
                                 break;
                             case SEE_CONTACT:
                                 if (contact.getContactId() > 1L) {
@@ -265,6 +274,9 @@ public class CallLogView extends FrameLayout {
                                 break;
                             case DELETE_ALL:
                                 ContactHelper.clearCallLogs();
+                                Intent intent = new Intent();
+                                intent.setAction(Consts.Action_Clear_Call_Log);
+                                getContext().sendBroadcast(intent);
                                 break;
                             default:
                                 break;

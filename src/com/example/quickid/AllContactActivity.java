@@ -42,6 +42,7 @@ public class AllContactActivity extends Activity {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Consts.Action_All_Contacts_Changed);
+        filter.addAction(Consts.Action_Delete_One_Contact_From_All);
         receiver = new ContactUpdateReceiver();
         registerReceiver(receiver, filter);
 
@@ -82,11 +83,28 @@ public class AllContactActivity extends Activity {
         super.onDestroy();
     }
 
+    public void onContactDeleted(long id) {
+        for (int i = 0; i < AppApplication.AllContacts.size(); i++) {
+            Contact type = AppApplication.AllContacts.get(i);
+            if (id == type.getContactId()) {
+                AppApplication.AllContacts.remove(i);
+                updateData();
+                break;
+            }
+        }
+    }
+
     class ContactUpdateReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateData();
+            String action = intent.getAction();
+            if (Consts.Action_All_Contacts_Changed.equals(action)) {
+                updateData();
+            } else if (Consts.Action_Delete_One_Contact_From_All.equals(action)) {
+                long id = intent.getLongExtra(Consts.Extra_Contact_ID, -1L);
+                onContactDeleted(id);
+            }
         }
 
     }

@@ -10,6 +10,7 @@ import com.example.quickid.R;
 import com.example.quickid.model.Contact;
 import com.example.quickid.model.Contact.PhoneStruct;
 import com.example.quickid.model.Contact.PointPair;
+import com.example.quickid.util.Consts;
 import com.example.quickid.util.ContactHelper;
 import com.example.quickid.util.IconContainer;
 
@@ -18,6 +19,7 @@ import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -328,8 +330,16 @@ public class ContactView extends FrameLayout {
                                 }
                                 break;
                             case DELETE_CONTACT:
-                                if (ContactHelper.deleteContactsByID(contact.getContactId())>0) {
-                                    //TODO notify
+                                if (ContactHelper.deleteContactsByID(contact.getContactId()) > 0) {
+                                    Intent intent = new Intent();
+                                    if (Display_Mode == Display_Mode_Display) {
+                                        intent.setAction(Consts.Action_Delete_One_Contact_From_All);
+                                    } else if (Display_Mode == Display_Mode_Search) {
+                                        intent.setAction(Consts.Action_Delete_One_Contact_From_Search);
+                                    }
+                                    intent.putExtra(Consts.Extra_Contact_ID,
+                                            contact.getContactId());
+                                    getContext().sendBroadcast(intent);
                                 }
                                 break;
                             case SEE_CONTACT:

@@ -16,12 +16,11 @@ import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.AbsListView.OnScrollListener;
 
@@ -39,6 +38,7 @@ public class MainActivity extends Activity implements OnClickListener,
     private static final String TAG_RECENT_DIAL_FRAGMENT = "recent";
     private static final String TAG_SEARCH_FRAGMENT = "search";
     private int currentStatus = 0;
+    private ContactBroadcastReceiver contactBroadcastReceiver;
     private static int Status_Show_Frequent = 0;
     private static int Status_Show_Search = 1;
 
@@ -60,6 +60,39 @@ public class MainActivity extends Activity implements OnClickListener,
         mDialButton.setOnClickListener(this);
         mDialpadButton.setOnClickListener(this);
         mHistoryButton.setOnClickListener(this);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Consts.Action_Delete_One_Contact_From_Search);
+        filter.addAction(Consts.Action_Delete_One_Call_Log);
+        filter.addAction(Consts.Action_Clear_Call_Log);
+        contactBroadcastReceiver = new ContactBroadcastReceiver();
+        registerReceiver(contactBroadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(contactBroadcastReceiver);
+        super.onDestroy();
+    }
+
+    class ContactBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Consts.Action_Delete_One_Contact_From_Search.equals(action)) {
+                long id = intent.getLongExtra(Consts.Extra_Contact_ID, -1L);
+                mSearchFragment.onContactDeleted(id);
+                return;
+            } else if (Consts.Action_Delete_One_Call_Log.equals(action)) {
+                String num = intent.getStringExtra(Consts.Extra_Calllog_Number);
+                mFrequentDialFragment.onCallLogDeleted(num);
+                return;
+            } else if (Consts.Action_Clear_Call_Log.equals(action)) {
+                mFrequentDialFragment.onCallLogCleared();
+                return;
+            }
+        }
     }
 
     @Override
