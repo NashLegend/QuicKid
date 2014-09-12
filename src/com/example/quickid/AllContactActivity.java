@@ -34,27 +34,18 @@ public class AllContactActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_contact);
 
-        ContactHelper.splitAllContacts(contactMaps, charMaps);
         listView = (PinnedHeaderListView) findViewById(R.id.listview_all_contacts);
         adapter = new AllContactsAdapter(this);
-        adapter.setData(contactMaps, charMaps);
         listView.setAdapter(adapter);
-
-        int pos = 0;
-        for (int i = 0; i < charMaps.size(); i++) {
-            int idx = charMaps.keyAt(i);
-            keyMaps.put(charMaps.get(idx), pos);
-            pos += contactMaps.get(idx).size() + 1;
-        }
-
         sideBar = (SideBar) findViewById(R.id.sidebar_all_contacts);
-
         sideBar.setOnTouchingLetterChangedListener(new OnTouchingLetterChangedListener());
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Consts.Action_All_Contacts_Changed);
         receiver = new ContactUpdateReceiver();
         registerReceiver(receiver, filter);
+
+        updateData();
     }
 
     class OnTouchingLetterChangedListener implements SideBar.OnTouchingLetterChangedListener {
@@ -71,6 +62,17 @@ public class AllContactActivity extends Activity {
 
     private void updateData() {
         ContactHelper.splitAllContacts(contactMaps, charMaps);
+        adapter.setData(contactMaps, charMaps);
+        int pos = 0;
+        String[] chars = new String[charMaps.size()];
+        for (int i = 0; i < charMaps.size(); i++) {
+            int idx = charMaps.keyAt(i);
+            keyMaps.put(charMaps.get(idx), pos);
+            chars[i] = charMaps.get(i);
+            pos += contactMaps.get(idx).size() + 1;
+        }
+        sideBar.setChars(chars);
+        sideBar.invalidate();
         adapter.notifyDataSetChanged();
     }
 
