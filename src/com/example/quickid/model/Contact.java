@@ -417,6 +417,7 @@ public class Contact {
 	}
 
 	private ScoreAndHits backHeadlessParagraphMatch(String reg) {
+		// TODO，如果此人有两个相似的号码，那么就只能匹配出一个来了，这是很显然不对的
 		int punish = 0;
 		ScoreAndHits scoreAndHits = new ScoreAndHits(-1, -1f,
 				new ArrayList<PointPair>());
