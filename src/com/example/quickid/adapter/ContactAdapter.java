@@ -57,8 +57,13 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        holder.contactView.setContact(contacts.get(position));
-        holder.contactView.build();
+        try {
+            holder.contactView.setContact(contacts.get(position));
+            holder.contactView.build();
+        } catch (Exception e) {
+            System.out.println("Oops");
+        }
+        
         return holder.contactView;
     }
 
@@ -124,6 +129,12 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             // 当发现数据已经变得有问题的时候，直接返回不做处理，而当performFiltering执行完毕后再执行publishResults后。
             // 联系人列表将迅速发生改变，这样肉眼无法识别其实有那么20毫秒的时候里有几个联系人的匹配内容显示有问题。
             // 第三种方法要求performFiltering使用synchronized，并且setContacts(resultList)要写在此方法中
+            
+            // 2014-09-29 11:01:11 update
+            // 上一次修改只处理了修改了单个contact的问题，但是还有另一个问题：setContacts();之后并没有立即notifyDataSetChanged();
+            // 在notifyDataSetChanged之后，adapter会顺序执行getView，但是在getView的时候，setContacts可能又会执行，
+            // 从而改变了contacts的长度,contacts.get(position)可能会发生越界的问题，因此这时候getView要捕获这个错误
+            // 返回一个空view，跟上次一样，空view存在时间很短，不会有人注意的……
             if (TextUtils.isEmpty(constraint)
                     || preQueryString.equals(constraint)) {
                 return null;
