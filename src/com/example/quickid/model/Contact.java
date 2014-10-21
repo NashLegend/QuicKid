@@ -74,7 +74,7 @@ public class Contact {
 		public String displayType;
 
 		public PhoneStruct(String number, int type) {
-			phoneNumber = number.replaceAll("^\\+86", "").replaceAll("[^\\d]+",
+			phoneNumber = number.replaceAll("^\\+86", "").replaceAll("[\\D]+",
 					"");
 			phoneType = type;
 		}
