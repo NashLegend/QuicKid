@@ -55,7 +55,6 @@ public class PhoneView extends FrameLayout {
 		this.phone = p;
 		numberText.setText(phone.phoneNumber);
 		String str = phone.phoneNumber;
-		System.out.println(str+","+mStr);
 		if (!TextUtils.isEmpty(mStr)) {
 			int idx = str.indexOf(mStr);
 			if (idx >= 0) {
