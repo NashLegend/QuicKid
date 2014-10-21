@@ -433,9 +433,9 @@ public class Contact {
 						&& punish > lost) {
 					scoreAndHits.score = sco;
 					scoreAndHits.nameIndex = i;
-					scoreAndHits.pairs.add(new PointPair(i, sco));
 					punish = lost;
 				}
+				scoreAndHits.pairs.add(new PointPair(i, sco));
 			}
 		}
 		if (scoreAndHits.score >= 0) {
