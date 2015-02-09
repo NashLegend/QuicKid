@@ -109,7 +109,8 @@ public class ContactView extends FrameLayout {
                 phoneTextView.setVisibility(View.VISIBLE);
                 phoneTextView.setText(phoneString);
                 if (contact.matchValue.nameIndex < 0
-                        || contact.matchValue.nameIndex > contact.fullNamesString.size() - 1) {
+                        || contact.matchValue.nameIndex > contact.fullNamesString
+                                .size() - 1) {
                     break;
                 }
                 if (contact.matchValue.matchLevel == Contact.Level_Complete) {
@@ -147,6 +148,13 @@ public class ContactView extends FrameLayout {
                                     + contact.matchValue.reg.length(),
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     phoneTextView.setText(builder);
+                    for (int i = 1; i < contact.matchValue.pairs.size(); i++) {
+                        int idx = contact.matchValue.pairs.get(i).listIndex;
+                        PhoneStruct phoneStruct = contact.getPhones().get(idx);
+                        PhoneView phoneView = new PhoneView(getContext());
+                        phoneView.setPhone(phoneStruct, contact.matchValue.reg);
+                        phoneViews.addView(phoneView);
+                    }
                 } else {
                     String str = contact.fullNamesString.get(
                             contact.matchValue.nameIndex).replaceAll(" ", "");
@@ -320,18 +328,19 @@ public class ContactView extends FrameLayout {
                         switch (which) {
                             case MAKE_PHONE_CALL:
                                 if (contact.getPhones().size() > 0) {
-                                    ContactHelper
-                                            .makePhoneCall(contact.getPhones().get(0).phoneNumber);
+                                    ContactHelper.makePhoneCall(contact.getPhones()
+                                            .get(0).phoneNumber);
                                 }
                                 break;
                             case SEND_SMS:
                                 if (contact.getPhones().size() > 0) {
-                                    ContactHelper
-                                            .sendSMS(contact.getPhones().get(0).phoneNumber);
+                                    ContactHelper.sendSMS(contact.getPhones()
+                                            .get(0).phoneNumber);
                                 }
                                 break;
                             case DELETE_CONTACT:
-                                if (ContactHelper.deleteContactsByID(contact.getContactId()) > 0) {
+                                if (ContactHelper.deleteContactsByID(contact
+                                        .getContactId()) > 0) {
                                     Intent intent = new Intent();
                                     if (Display_Mode == Display_Mode_Display) {
                                         intent.setAction(Consts.Action_Delete_One_Contact_From_All);
@@ -344,7 +353,8 @@ public class ContactView extends FrameLayout {
                                 }
                                 break;
                             case SEE_CONTACT:
-                                ContactHelper.openContactDetail(contact.getContactId());
+                                ContactHelper.openContactDetail(contact
+                                        .getContactId());
                                 break;
                             default:
                                 break;
@@ -396,7 +406,8 @@ public class ContactView extends FrameLayout {
                         if (Display_Mode == Display_Mode_Display) {
                             ContactHelper.openContactDetail(contact.getContactId());
                         } else if (Display_Mode == Display_Mode_Search) {
-                            ContactHelper.makePhoneCall(contact.getPhones().get(0).phoneNumber);
+                            ContactHelper
+                                    .makePhoneCall(contact.getPhones().get(0).phoneNumber);
                         }
                     }
                     break;
@@ -410,5 +421,4 @@ public class ContactView extends FrameLayout {
             return false;
         }
     }
-
 }

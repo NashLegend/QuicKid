@@ -8,13 +8,15 @@ import net.nashlegend.quickid.R;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
-import android.util.AttributeSet;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -26,6 +28,8 @@ public class PhoneView extends FrameLayout {
     LinearLayout layoutRoot;
     ImageButton smsButton;
     PhoneStruct phone;
+    boolean matchNumber = false;
+    String matchedNumber = "";
 
     public PhoneView(Context context) {
         super(context);
@@ -43,6 +47,23 @@ public class PhoneView extends FrameLayout {
     public void setPhone(PhoneStruct p) {
         this.phone = p;
         numberText.setText(phone.phoneNumber);
+    }
+
+    public void setPhone(PhoneStruct p, String mStr) {
+        this.phone = p;
+        numberText.setText(phone.phoneNumber);
+        String str = phone.phoneNumber;
+        if (!TextUtils.isEmpty(mStr)) {
+            int idx = str.indexOf(mStr);
+            if (idx >= 0) {
+                SpannableStringBuilder builder = new SpannableStringBuilder(str);
+                ForegroundColorSpan redSpan = new ForegroundColorSpan(Color.RED);
+                builder.setSpan(redSpan, idx, idx + mStr.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                numberText.setText(builder);
+            }
+        }
+
     }
 
     private void onLongClick() {
@@ -86,7 +107,8 @@ public class PhoneView extends FrameLayout {
                 case MotionEvent.ACTION_UP:
                     handler.removeCallbacks(longPressRunnable);
                     if (System.currentTimeMillis() - startTime < shortDura) {
-                        ContactHelper.makePhoneCall(numberText.getText().toString());
+                        ContactHelper
+                                .makePhoneCall(numberText.getText().toString());
                     }
                     break;
                 case MotionEvent.ACTION_CANCEL:
