@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.quickid"
+    package="net.nashlegend.quickid"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -17,13 +17,13 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".AppApplication"
+        android:name="net.nashlegend.quickid.AppApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="net.nashlegend.quickid.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -36,16 +36,16 @@
         </activity>
 
         <service
-            android:name="com.example.quickid.service.ContactService"
+            android:name="net.nashlegend.quickid.service.ContactService"
             android:exported="false" >
         </service>
 
         <activity
-            android:name=".AllContactActivity"
+            android:name="net.nashlegend.quickid.AllContactActivity"
             android:label="@string/title_activity_all_contact" >
         </activity>
         <activity
-            android:name=".HistoryDialActivity"
+            android:name="net.nashlegend.quickid.HistoryDialActivity"
             android:label="@string/title_activity_history_dial" >
         </activity>
     </application>

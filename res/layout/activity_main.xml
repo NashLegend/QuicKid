@@ -29,13 +29,13 @@
         android:background="@color/actionbar_background_color" >
 
         <ImageButton
-            android:id="@+id/button_call_history"
+            android:id="@+id/button_all_contacts"
             android:layout_width="@dimen/fake_menu_button_min_width"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|start"
             android:background="?android:attr/selectableItemBackground"
             android:contentDescription="@string/action_menu_call_history_description"
-            android:src="@drawable/ic_menu_history_lt" />
+            android:src="@drawable/ic_menu_contacts" />
 
         <ImageButton
             android:id="@+id/button_dialpad"
@@ -57,13 +57,14 @@
             android:visibility="gone" />
 
         <ImageButton
-            android:id="@+id/button_overflow_menu"
+            android:id="@+id/button_send_message"
             android:layout_width="@dimen/fake_menu_button_min_width"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|end"
             android:background="?android:attr/selectableItemBackground"
             android:contentDescription="@string/action_menu_overflow_description"
-            android:src="@drawable/ic_menu_overflow_lt" />
+            android:src="@drawable/ic_menu_send_message"
+            android:visibility="gone" />
     </FrameLayout>
 
 </LinearLayout>

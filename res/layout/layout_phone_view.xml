@@ -32,9 +32,8 @@
             android:id="@+id/button_send_sms"
             android:layout_width="@dimen/sms_icon_width"
             android:layout_height="@dimen/sms_icon_width"
-            android:background="#00000000"
+            android:background="?android:attr/selectableItemBackground"
             android:contentDescription="@string/app_name"
-            android:scaleType="centerInside"
             android:src="@drawable/sms" />
     </RelativeLayout>
 

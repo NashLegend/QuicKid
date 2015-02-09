@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- A layout representing a single key in the dialpad -->
-<com.example.quickid.view.DialpadKeyButton xmlns:android="http://schemas.android.com/apk/res/android"
+<net.nashlegend.quickid.view.DialpadKeyButton xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/DialpadKeyButtonStyle" >
 
     <LinearLayout style="@style/DialpadKeyInternalLayoutStyle" >
@@ -19,4 +19,4 @@
             style="@style/DialpadKeyLettersStyle" />
     </LinearLayout>
 
-</com.example.quickid.view.DialpadKeyButton>
+</net.nashlegend.quickid.view.DialpadKeyButton>
