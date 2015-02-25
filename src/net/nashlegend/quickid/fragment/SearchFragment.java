@@ -5,12 +5,15 @@ import net.nashlegend.quickid.adapter.ContactAdapter;
 import net.nashlegend.quickid.interfacc.OnListFragmentScrolledListener;
 import net.nashlegend.quickid.interfacc.OnQueryContactListener;
 import net.nashlegend.quickid.model.Contact;
+import net.nashlegend.quickid.util.Consts;
+import net.nashlegend.quickid.util.ContactHelper;
 import net.nashlegend.quickid.view.ContactView;
-
 import net.nashlegend.quickid.R;
-
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -74,6 +77,8 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
         for (int i = 0; i < adapter.getContacts().size(); i++) {
             if (adapter.getContacts().get(i).getContactId() == id) {
                 adapter.getContacts().remove(i);
+                adapter.notifyDataSetChanged();
+                break;
             }
         }
     }
@@ -93,6 +98,17 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
                     onQueryChanged(queryString);
                 }
             });
+        }
+    }
+    
+    class ContactUpdateReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Consts.Action_All_Contacts_Changed.equals(action)) {
+            	
+            }
         }
     }
 

@@ -109,6 +109,5 @@ public class AllContactActivity extends Activity {
                 onContactDeleted(id);
             }
         }
-
     }
 }

@@ -87,10 +87,15 @@ public class RecentContactsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (needRetrive && adapter != null) {
-            needRetrive = false;
-            loadCallLogs();
-        }
+        if (adapter != null) {
+        	if (needRetrive) {
+                needRetrive = false;
+                loadCallLogs();
+            }else {
+				adapter.notifyDataSetChanged();
+			}
+		}
+        
     }
 
     @Override

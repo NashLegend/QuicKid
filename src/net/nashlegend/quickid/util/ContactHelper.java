@@ -136,7 +136,6 @@ public class ContactHelper {
             long date = cursor.getLong(4);
             int duration = cursor.getInt(5);
             String number = cursor.getString(6);
-            // 会不会漏下啊，name不为空，又已经不在联系人里面了
             // TODO
             if (TextUtils.isEmpty(name)) {
                 boolean matched = false;
@@ -173,6 +172,7 @@ public class ContactHelper {
                 }
 
                 if (!matched) {
+                	//如果一个曾经的打过的通讯录号码被删除，callLogs里名字会保留，但是在这里就不会add了，这是个bug
                     match2: for (Iterator<Contact> iterator = AppApplication.AllContacts
                             .iterator(); iterator.hasNext();) {
                         Contact con = iterator.next();
@@ -198,6 +198,19 @@ public class ContactHelper {
                         }
                     }
                 }
+                
+                if (!matched) {
+                    Contact tmpContact = new Contact();
+                    tmpContact.Times_Contacted = 1;
+                    tmpContact.Last_Contact_Call_ID = callID;
+                    tmpContact.Last_Contact_Call_Type = callType;
+                    tmpContact.Last_Contact_Number = number;
+                    tmpContact.Last_Contact_Phone_Type = numberType;
+                    tmpContact.Last_Time_Contacted = date;
+                    tmpContact.Last_Contact_Duration = duration;
+                    recentContacts.add(tmpContact);
+                }
+                
             }
         }
         cursor.close();

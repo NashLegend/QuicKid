@@ -345,7 +345,7 @@ public class DialpadFragment extends Fragment implements View.OnClickListener,
             mDialpadQueryListener.onDialpadQueryChanged(mDigits.getText()
                     .toString());
         } else {
-            System.out.println("Oops");
+//            System.out.println("Oops");
         }
         updateDialAndDeleteButtonEnabledState();
     }

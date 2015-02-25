@@ -62,7 +62,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             holder.contactView.setContact(contacts.get(position));
             holder.contactView.build();
         } catch (Exception e) {
-            System.out.println("Oops");
+//            System.out.println("Oops");
         }
         
         return holder.contactView;
@@ -124,7 +124,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         synchronized protected FilterResults performFiltering(CharSequence constraint) {
             // 手速过快的话，有可能在执行这里的时候正在执行getView，这时候却修改了contact的内容，有可能报错
             // 所以这时候有三种方法解决这个问题。
-            // 一是同步getView和performFiltering方法，让他们不相互打断，这很难实现，得重新实现adatper,listview
+            // 一是同步getView和performFiltering方法，让他们不相互打断，这很难实现，得重新实现adapter,listView
             // 二是执行performFiltering不修改contacts列表，这就要求使用contacts列表的一个clone，但是这样效率低下
             // 三是仍然允许performFiltering方法修改contacts内容，但是要在getView方法里做好预案
             // 当发现数据已经变得有问题的时候，直接返回不做处理，而当performFiltering执行完毕后再执行publishResults后。
