@@ -12,7 +12,6 @@ import net.nashlegend.quickid.AppApplication;
 import net.nashlegend.quickid.model.Contact;
 import net.nashlegend.quickid.model.Contact.PhoneStruct;
 
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -135,82 +134,54 @@ public class ContactHelper {
             int numberType = cursor.getInt(3);
             long date = cursor.getLong(4);
             int duration = cursor.getInt(5);
-            String number = cursor.getString(6);
+            String number = cursor.getString(6).replaceAll(" ", "");
             // TODO
-            if (TextUtils.isEmpty(name)) {
-                boolean matched = false;
-                for (Iterator<Contact> iterator = recentContacts.iterator(); iterator
-                        .hasNext();) {
+            boolean matched = false;
+            for (Iterator<Contact> iterator = recentContacts.iterator(); iterator
+                    .hasNext();) {
+                Contact con = iterator.next();
+                if (con.Last_Contact_Number.equals(number)) {
+                    matched = true;
+                    con.Times_Contacted++;
+                    break;
+                }
+            }
+            if (!matched) {
+                match2: for (Iterator<Contact> iterator = AppApplication.AllContacts
+                        .iterator(); iterator.hasNext();) {
                     Contact con = iterator.next();
-                    if (con.Last_Contact_Number.equals(number)) {
-                        matched = true;
-                        con.Times_Contacted++;
-                        break;
-                    }
-                }
-                if (!matched) {
-                    Contact tmpContact = new Contact();
-                    tmpContact.Times_Contacted = 1;
-                    tmpContact.Last_Contact_Call_ID = callID;
-                    tmpContact.Last_Contact_Call_Type = callType;
-                    tmpContact.Last_Contact_Number = number;
-                    tmpContact.Last_Contact_Phone_Type = numberType;
-                    tmpContact.Last_Time_Contacted = date;
-                    tmpContact.Last_Contact_Duration = duration;
-                    recentContacts.add(tmpContact);
-                }
-            } else {
-                boolean matched = false;
-                for (Iterator<Contact> iterator = recentContacts.iterator(); iterator
-                        .hasNext();) {
-                    Contact con = iterator.next();
-                    if (con.Last_Contact_Number.equals(number)) {
-                        matched = true;
-                        con.Times_Contacted++;
-                        break;
-                    }
-                }
-
-                if (!matched) {
-                	//如果一个曾经的打过的通讯录号码被删除，callLogs里名字会保留，但是在这里就不会add了，这是个bug
-                    match2: for (Iterator<Contact> iterator = AppApplication.AllContacts
-                            .iterator(); iterator.hasNext();) {
-                        Contact con = iterator.next();
-                        ArrayList<PhoneStruct> phones = con.getPhones();
-                        for (Iterator<PhoneStruct> iterator2 = phones
-                                .iterator(); iterator2.hasNext();) {
-                            PhoneStruct phoneStruct = iterator2.next();
-                            if (phoneStruct.phoneNumber.equals(number)) {
-                                matched = true;
-                                Contact tmpContact = con.clone();
-                                tmpContact
-                                        .setPhones(new ArrayList<Contact.PhoneStruct>());
-                                tmpContact.Times_Contacted = 1;
-                                tmpContact.Last_Contact_Call_ID = callID;
-                                tmpContact.Last_Contact_Call_Type = callType;
-                                tmpContact.Last_Contact_Number = number;
-                                tmpContact.Last_Contact_Phone_Type = numberType;
-                                tmpContact.Last_Time_Contacted = date;
-                                tmpContact.Last_Contact_Duration = duration;
-                                recentContacts.add(tmpContact);
-                                break match2;
-                            }
+                    ArrayList<PhoneStruct> phones = con.getPhones();
+                    for (Iterator<PhoneStruct> iterator2 = phones
+                            .iterator(); iterator2.hasNext();) {
+                        PhoneStruct phoneStruct = iterator2.next();
+                        if (phoneStruct.phoneNumber.equals(number)) {
+                            matched = true;
+                            Contact tmpContact = con.clone();
+                            tmpContact
+                                    .setPhones(new ArrayList<Contact.PhoneStruct>());
+                            tmpContact.Times_Contacted = 1;
+                            tmpContact.Last_Contact_Call_ID = callID;
+                            tmpContact.Last_Contact_Call_Type = callType;
+                            tmpContact.Last_Contact_Number = number;
+                            tmpContact.Last_Contact_Phone_Type = numberType;
+                            tmpContact.Last_Time_Contacted = date;
+                            tmpContact.Last_Contact_Duration = duration;
+                            recentContacts.add(tmpContact);
+                            break match2;
                         }
                     }
                 }
-                
-                if (!matched) {
-                    Contact tmpContact = new Contact();
-                    tmpContact.Times_Contacted = 1;
-                    tmpContact.Last_Contact_Call_ID = callID;
-                    tmpContact.Last_Contact_Call_Type = callType;
-                    tmpContact.Last_Contact_Number = number;
-                    tmpContact.Last_Contact_Phone_Type = numberType;
-                    tmpContact.Last_Time_Contacted = date;
-                    tmpContact.Last_Contact_Duration = duration;
-                    recentContacts.add(tmpContact);
-                }
-                
+            }
+            if (!matched) {
+                Contact tmpContact = new Contact();
+                tmpContact.Times_Contacted = 1;
+                tmpContact.Last_Contact_Call_ID = callID;
+                tmpContact.Last_Contact_Call_Type = callType;
+                tmpContact.Last_Contact_Number = number;
+                tmpContact.Last_Contact_Phone_Type = numberType;
+                tmpContact.Last_Time_Contacted = date;
+                tmpContact.Last_Contact_Duration = duration;
+                recentContacts.add(tmpContact);
             }
         }
         cursor.close();
@@ -220,7 +191,6 @@ public class ContactHelper {
     public static int deleteContactsByID(long contact_id) {
         ContentResolver resolver = AppApplication.globalApplication
                 .getContentResolver();
-        System.out.println(contact_id);
         int res = resolver.delete(ContentUris.withAppendedId(Contacts.CONTENT_URI, contact_id),
                 null, null);
         return res;

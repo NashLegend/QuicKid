@@ -119,6 +119,8 @@ public class CallLogView extends FrameLayout {
         if (!TextUtils.isEmpty(contact.getLookupKey())) {
             badge.assignContactUri(Contacts.getLookupUri(
                     contact.getContactId(), contact.getLookupKey()));
+        }else {
+            badge.assignContactUri(null);
         }
         loadAvatar();
     }
@@ -134,27 +136,27 @@ public class CallLogView extends FrameLayout {
         DateFormat format;
 
         if (mills / 86400000 != System.currentTimeMillis() / 86400000) {
-        	//如果不是今天
+            // 如果不是今天
             if (date.get(Calendar.YEAR) == date2.get(Calendar.YEAR)) {
-            	//若是同一年
+                // 若是同一年
                 format = new SimpleDateFormat("M月d日 HH:mm:ss");
                 dateString = format.format(date.getTime());
             } else {
-            	//若不是同一年
+                // 若不是同一年
                 format = new SimpleDateFormat("yyyy年M月d日 HH:mm:ss");
                 dateString = format.format(date.getTime());
             }
         } else {
             long diff = System.currentTimeMillis() - mills;
             if (diff > 1800000) {
-            	//如果半小时以前
+                // 如果半小时以前
                 format = new SimpleDateFormat("今天 HH:mm:ss");
                 dateString = format.format(date.getTime());
             } else if (diff >= 60000) {
-            	//一分钟到半小时之前
+                // 一分钟到半小时之前
                 dateString = (diff / 60000) + "分钟前";
             } else {
-            	//一分钟以内
+                // 一分钟以内
                 dateString = (diff / 1000) + "秒前";
             }
         }
