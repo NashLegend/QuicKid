@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_contact_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" >
+
+    <LinearLayout
+        android:id="@+id/layout_phone_numbers"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/phone_item_height"
+        android:background="@drawable/bg_contact_item_normal"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp" >
+
+        <ImageView
+            android:id="@+id/img_add_image"
+            android:layout_width="@dimen/phone_content_height"
+            android:layout_height="@dimen/phone_content_height"
+            android:background="#547bca"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add_contact_holo_dark" />
+
+        <TextView
+            android:id="@+id/text_contact_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:singleLine="true"
+            android:text="添加到通讯录" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/contact_divider_color" />
+
+</LinearLayout>

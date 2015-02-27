@@ -390,7 +390,16 @@ public class ContactHelper {
         intent.setAction(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("smsto:" + number));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // intent.putExtra("sms_body", "content_body");
         AppApplication.globalApplication.startActivity(intent);
+    }
+
+    public static void addContact(String currentNumber) {
+        if (currentNumber != null && currentNumber.length() > 2) {
+            Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
+            intent.setType("vnd.android.cursor.item/raw_contact");  
+            intent.putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, currentNumber);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            AppApplication.globalApplication.startActivity(intent);
+        }
     }
 }

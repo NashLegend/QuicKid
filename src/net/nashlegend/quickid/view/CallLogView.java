@@ -119,7 +119,7 @@ public class CallLogView extends FrameLayout {
         if (!TextUtils.isEmpty(contact.getLookupKey())) {
             badge.assignContactUri(Contacts.getLookupUri(
                     contact.getContactId(), contact.getLookupKey()));
-        }else {
+        } else {
             badge.assignContactUri(null);
         }
         loadAvatar();
@@ -247,15 +247,24 @@ public class CallLogView extends FrameLayout {
     CharSequence[] items = {
             "拨打电话", "发送短信", "删除记录", "查看联系人", "删除全部记录"
     };
+    CharSequence[] itemsAnonymous = {
+            "拨打电话", "发送短信", "删除记录", "添加到通讯录", "删除全部记录"
+    };
     static final int MAKE_PHONE_CALL = 0;
     static final int SEND_SMS = 1;
     static final int DELETE_LOG = 2;
-    static final int SEE_CONTACT = 3;
+    static final int SEE_OR_ADD_CONTAC = 3;
     static final int DELETE_ALL = 4;
 
     private void onLongClick() {
+        CharSequence[] clickChars;
+        if (contact.getContactId() > 0) {
+            clickChars = items;
+        } else {
+            clickChars = itemsAnonymous;
+        }
         new AlertDialog.Builder(getContext()).setTitle("")
-                .setItems(items, new DialogInterface.OnClickListener() {
+                .setItems(clickChars, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -276,9 +285,12 @@ public class CallLogView extends FrameLayout {
                                     getContext().sendBroadcast(intent);
                                 }
                                 break;
-                            case SEE_CONTACT:
-                                if (contact.getContactId() > 1L) {
+                            case SEE_OR_ADD_CONTAC:
+                                // id从0开始递增的
+                                if (contact.getContactId() > 0L) {
                                     ContactHelper.openContactDetail(contact.getContactId());
+                                }else {
+                                    ContactHelper.addContact(contact.Last_Contact_Number);
                                 }
                                 break;
                             case DELETE_ALL:

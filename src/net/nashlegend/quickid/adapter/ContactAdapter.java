@@ -12,7 +12,6 @@ import net.nashlegend.quickid.model.Contact.PointPair;
 import net.nashlegend.quickid.model.Contact.ScoreAndHits;
 import net.nashlegend.quickid.view.ContactView;
 
-
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
@@ -62,9 +61,9 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             holder.contactView.setContact(contacts.get(position));
             holder.contactView.build();
         } catch (Exception e) {
-//            System.out.println("Oops");
+            
         }
-        
+
         return holder.contactView;
     }
 
@@ -108,10 +107,12 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
     private String preQueryString = "";
 
     private Filter filter = new Filter() {
+        @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint,
                 FilterResults results) {
             if (results != null) {
+                setContacts((ArrayList<Contact>) results.values);
                 if (results.count > 0) {
                     notifyDataSetChanged();
                 } else {
@@ -130,7 +131,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             // 当发现数据已经变得有问题的时候，直接返回不做处理，而当performFiltering执行完毕后再执行publishResults后。
             // 联系人列表将迅速发生改变，这样肉眼无法识别其实有那么20毫秒的时候里有几个联系人的匹配内容显示有问题。
             // 第三种方法要求performFiltering使用synchronized，并且setContacts(resultList)要写在此方法中
-            
+
             // 2014-09-29 11:01:11 update
             // 上一次修改只处理了修改了单个contact的问题，但是还有另一个问题：setContacts();之后并没有立即notifyDataSetChanged();
             // 在notifyDataSetChanged之后，adapter会顺序执行getView，但是在getView的时候，setContacts可能又会执行，
@@ -140,19 +141,25 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                     || preQueryString.equals(constraint)) {
                 return null;
             }
+
             String queryString = constraint.toString();
             FilterResults results = new FilterResults();
             int preLength = preQueryString.length();
             int queryLength = queryString.length();
             ArrayList<Contact> baseList = new ArrayList<Contact>();
             ArrayList<Contact> resultList = new ArrayList<Contact>();
-            if (preLength > 0 && (preLength == queryLength - 1)
-                    && queryString.startsWith(preQueryString)) {
-                baseList = contacts;
-            } else {
-                baseList = AppApplication.AllContacts;
-            }
-
+            // 点击过快的话，第一个publishResults还没执行到，第二个performFiltering就已经开始了，
+            // 如果使用contacts做baseList的话有可能导致搜索不到。
+            // 就算是使用AllContacts做baseList基本没有问题，Nexus5 270联系人搜索不超过10ms
+            
+            // if (preLength > 0 && (preLength == queryLength - 1)
+            // && queryString.startsWith(preQueryString)) {
+            // baseList = contacts;
+            // } else {
+            // baseList = AppApplication.AllContacts;
+            // }
+            
+            baseList = AppApplication.AllContacts;
             for (Iterator<Contact> iterator = baseList.iterator(); iterator
                     .hasNext();) {
                 Contact contact = (Contact) iterator.next();
@@ -164,7 +171,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             preQueryString = queryString;
             results.values = resultList;
             results.count = resultList.size();
-            setContacts(resultList);
             return results;
         }
     };

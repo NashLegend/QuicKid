@@ -167,7 +167,7 @@ public class Contact {
      */
     public void initPinyin() {
         synchronized (AppApplication.globalApplication) {
-            String trimmed = name.replaceAll(" +", " ");// 这里会搞掉英文，导致英文难检索。TODO
+            String trimmed = name.replaceAll(" +", " ");
             fullNamesString = AppApplication.hanyuPinyinHelper
                     .hanyuPinYinConvert(trimmed, false);
             if (fullNamesString != null && fullNamesString.size() > 0) {

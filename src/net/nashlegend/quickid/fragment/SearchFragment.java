@@ -14,11 +14,14 @@ import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -30,6 +33,8 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
     private ListView listView;
     private OnListFragmentScrolledListener mActivityScrollListener;
     private View layoutView;
+    private View footer;// 使用FooterView会导致快速点击的时候bm
+    private String currentNumber;
 
     @Override
     public void onAttach(Activity activity) {
@@ -66,8 +71,17 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem,
                     int visibleItemCount, int totalItemCount) {
-                // TODO Auto-generated method stub
 
+            }
+        });
+        footer = inflater.inflate(R.layout.layout_add_contact, null);
+        listView.addFooterView(footer);
+        footer.setVisibility(View.GONE);
+        footer.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                ContactHelper.addContact(currentNumber);
             }
         });
         return layoutView;
@@ -86,9 +100,13 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
     @Override
     public void onQueryChanged(final String queryString) {
         if (isAdded()) {
-            if (TextUtils.isEmpty(queryString)) {
-                // impossible,do nothing
+            currentNumber = queryString;
+            if (TextUtils.isEmpty(queryString) || queryString.length() < 3) {
+                footer.setVisibility(View.GONE);
             } else {
+                footer.setVisibility(View.VISIBLE);
+            }
+            if (!TextUtils.isEmpty(queryString)) {
                 adapter.getFilter().filter(queryString);
             }
         } else {
@@ -100,14 +118,14 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
             });
         }
     }
-    
+
     class ContactUpdateReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (Consts.Action_All_Contacts_Changed.equals(action)) {
-            	
+                // TODO
             }
         }
     }
