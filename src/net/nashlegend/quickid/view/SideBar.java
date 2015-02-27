@@ -1,6 +1,7 @@
 
 package net.nashlegend.quickid.view;
 
+import net.nashlegend.legendutils.Tools.DisplayUtil;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -45,13 +46,12 @@ public class SideBar extends View {
             if (showBkg) {
                 canvas.drawColor(Color.parseColor("#00000000"));
             }
-
             int height = getHeight();
             int width = getWidth();
             int singleHeight = height / chars.length;
             for (int i = 0; i < chars.length; i++) {
                 paint.setColor(Color.BLACK);
-                paint.setTextSize(22);
+                paint.setTextSize(DisplayUtil.dip2px(10, getContext()));
                 paint.setTypeface(Typeface.DEFAULT_BOLD);
                 paint.setAntiAlias(true);
                 if (i == choose) {
@@ -59,13 +59,13 @@ public class SideBar extends View {
                     paint.setFakeBoldText(true);
                 }
                 float xPos = width / 2 - paint.measureText(chars[i]) / 2;
-                float yPos = singleHeight * i + singleHeight;
+                float yPos = singleHeight * (i + 0.5f);
                 canvas.drawText(chars[i], xPos, yPos, paint);
                 paint.reset();
             }
         }
     }
-
+    
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (chars.length > 0) {
@@ -79,7 +79,7 @@ public class SideBar extends View {
                 case MotionEvent.ACTION_DOWN:
                     showBkg = true;
                     if (oldChoose != c && listener != null) {
-                        if (c > 0 && c < chars.length) {
+                        if (c >= 0 && c < chars.length) {
                             listener.onTouchingLetterChanged(chars[c]);
                             choose = c;
                             invalidate();
@@ -89,7 +89,7 @@ public class SideBar extends View {
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (oldChoose != c && listener != null) {
-                        if (c > 0 && c < chars.length) {
+                        if (c >= 0 && c < chars.length) {
                             listener.onTouchingLetterChanged(chars[c]);
                             choose = c;
                             invalidate();
