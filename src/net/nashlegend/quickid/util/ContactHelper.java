@@ -30,7 +30,7 @@ import android.util.SparseArray;
 public class ContactHelper {
 
     /**
-     * 加载所有联系人
+     * 加载所有联系人，没有手机号的未加载。TODO
      */
     synchronized public static void loadContacts() {
         ArrayList<Contact> AllContacts = new ArrayList<Contact>();
