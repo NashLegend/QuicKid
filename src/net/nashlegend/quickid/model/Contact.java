@@ -167,28 +167,30 @@ public class Contact {
      */
     public void initPinyin() {
         synchronized (AppApplication.globalApplication) {
-            String trimmed = name.replaceAll(" +", " ");//这里会搞掉英文，导致英文难检索。TODO
+            String trimmed = name.replaceAll(" +", " ");// 这里会搞掉英文，导致英文难检索。TODO
             fullNamesString = AppApplication.hanyuPinyinHelper
                     .hanyuPinYinConvert(trimmed, false);
-            setIndexer(fullNamesString.get(0).charAt(0));
-            for (Iterator<String> iterator = fullNamesString.iterator(); iterator
-                    .hasNext();) {
-                String str = iterator.next();
-                ArrayList<String> lss = new ArrayList<String>();
-                String[] pinyins = TextUtil.splitIgnoringEmpty(str, " ");
-                String abbra = "";
-                String fullNameNumberWithoutSpaceString = "";
-                for (int i = 0; i < pinyins.length; i++) {
-                    String string = pinyins[i];
-                    String res = convertString2Number(string+"");
-                    abbra += res.charAt(0);
-                    fullNameNumberWithoutSpaceString += res;
-                    lss.add(res);
+            if (fullNamesString != null && fullNamesString.size() > 0) {
+                setIndexer(fullNamesString.get(0).charAt(0));
+                for (Iterator<String> iterator = fullNamesString.iterator(); iterator
+                        .hasNext();) {
+                    String str = iterator.next();
+                    ArrayList<String> lss = new ArrayList<String>();
+                    String[] pinyins = TextUtil.splitIgnoringEmpty(str, " ");
+                    String abbra = "";
+                    String fullNameNumberWithoutSpaceString = "";
+                    for (int i = 0; i < pinyins.length; i++) {
+                        String string = pinyins[i];
+                        String res = convertString2Number(string + "");
+                        abbra += res.charAt(0);
+                        fullNameNumberWithoutSpaceString += res;
+                        lss.add(res);
+                    }
+                    abbreviationNumber.add(abbra);
+                    fullNameNumberWithoutSpace
+                            .add(fullNameNumberWithoutSpaceString);
+                    fullNameNumber.add(lss);
                 }
-                abbreviationNumber.add(abbra);
-                fullNameNumberWithoutSpace
-                        .add(fullNameNumberWithoutSpaceString);
-                fullNameNumber.add(lss);
             }
         }
     }

@@ -104,7 +104,7 @@ public class HanyuPinyinHelper {
         if (n == str.length()) {
             String temp = buffer.toString();
             if (!list.contains(temp)) {
-                list.add(buffer.toString());
+                list.add(buffer.toString().trim());
             }
             return;
         } else {
