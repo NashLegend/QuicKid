@@ -31,6 +31,11 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         display_Mode = display;
     }
 
+    public void clear() {
+        preQueryString = "";
+        contacts.clear();
+    }
+
     @Override
     public int getCount() {
         return contacts.size();
@@ -61,7 +66,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             holder.contactView.setContact(contacts.get(position));
             holder.contactView.build();
         } catch (Exception e) {
-            
+
         }
 
         return holder.contactView;
@@ -138,27 +143,18 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             // 从而改变了contacts的长度,contacts.get(position)可能会发生越界的问题，因此这时候getView要捕获这个错误
             // 返回一个空view，跟上次一样，空view存在时间很短，不会有人注意的……
             if (TextUtils.isEmpty(constraint)
-                    || preQueryString.equals(constraint)) {
+                    || (preQueryString != null && preQueryString.equals(constraint))) {
                 return null;
             }
 
             String queryString = constraint.toString();
             FilterResults results = new FilterResults();
-            int preLength = preQueryString.length();
-            int queryLength = queryString.length();
             ArrayList<Contact> baseList = new ArrayList<Contact>();
             ArrayList<Contact> resultList = new ArrayList<Contact>();
             // 点击过快的话，第一个publishResults还没执行到，第二个performFiltering就已经开始了，
             // 如果使用contacts做baseList的话有可能导致搜索不到。
             // 就算是使用AllContacts做baseList基本没有问题，Nexus5 270联系人搜索不超过10ms
-            
-            // if (preLength > 0 && (preLength == queryLength - 1)
-            // && queryString.startsWith(preQueryString)) {
-            // baseList = contacts;
-            // } else {
-            // baseList = AppApplication.AllContacts;
-            // }
-            
+
             baseList = AppApplication.AllContacts;
             for (Iterator<Contact> iterator = baseList.iterator(); iterator
                     .hasNext();) {

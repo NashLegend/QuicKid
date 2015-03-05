@@ -14,6 +14,7 @@ import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,6 +85,7 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
                 ContactHelper.addContact(currentNumber);
             }
         });
+        registeReceiver();
         return layoutView;
     }
 
@@ -118,6 +120,42 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
             });
         }
     }
+    
+    private void registeReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Consts.Action_All_Contacts_Changed);
+        getActivity().registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (needRetrive) {
+            needRetrive = false;
+            updateData();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            getActivity().unregisterReceiver(receiver);
+        } catch (Exception e) {
+
+        }
+        super.onDestroy();
+    }
+
+    boolean needRetrive = false;
+
+    private void updateData() {
+        if (!TextUtils.isEmpty(currentNumber)) {
+            adapter.clear();
+            adapter.getFilter().filter(currentNumber);
+        }
+    }
+
+    ContactUpdateReceiver receiver = new ContactUpdateReceiver();
 
     class ContactUpdateReceiver extends BroadcastReceiver {
 
@@ -125,7 +163,11 @@ public class SearchFragment extends Fragment implements OnQueryContactListener {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (Consts.Action_All_Contacts_Changed.equals(action)) {
-                // TODO
+                if (isVisible()) {
+                    updateData();
+                } else {
+                    needRetrive = true;
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ package net.nashlegend.quickid.view;
 
 import java.lang.reflect.Method;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.text.InputType;
@@ -41,7 +42,7 @@ public class DigitsEditText extends EditText {
 			setShowSoftInputOnFocus.setAccessible(true);
 			setShowSoftInputOnFocus.invoke(this, false);
 		} catch (Exception e) {
-			// TODO: handle exception
+			
 		}
 	}
 
@@ -56,7 +57,8 @@ public class DigitsEditText extends EditText {
 		}
 	}
 
-	@Override
+	@SuppressLint("ClickableViewAccessibility")
+    @Override
 	public boolean onTouchEvent(MotionEvent event) {
 		final boolean ret = super.onTouchEvent(event);
 		// Must be done after super.onTouchEvent()

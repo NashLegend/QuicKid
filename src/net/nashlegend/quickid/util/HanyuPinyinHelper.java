@@ -97,7 +97,7 @@ public class HanyuPinyinHelper {
     }
 
     /**
-     * @param n 
+     * @param n
      * @param str 要转换拼音的字符
      */
     private void convert(int n, String str) {
@@ -109,7 +109,7 @@ public class HanyuPinyinHelper {
             return;
         } else {
             char c = str.charAt(n);
-            //0x3007是零，就是那个圈〇
+            // 0x3007是零，就是那个圈〇
             if (0x3007 == c || (0x4E00 <= c && c <= 0x9FA5)) {
                 String[] arrayStrings = getHanyuPinyins(c);
                 if (arrayStrings == null) {
@@ -121,10 +121,10 @@ public class HanyuPinyinHelper {
                 } else if (arrayStrings.length == 1) {
                     if (isSimple) {
                         if (!"".equals(arrayStrings[0])) {
-                            buffer.append(" "+arrayStrings[0].charAt(0) + " ");
+                            buffer.append(" " + arrayStrings[0].charAt(0) + " ");
                         }
                     } else {
-                        buffer.append(" "+arrayStrings[0] + " ");
+                        buffer.append(" " + arrayStrings[0] + " ");
                     }
                     convert(n + 1, str);
                 } else {
@@ -133,20 +133,20 @@ public class HanyuPinyinHelper {
                         len = buffer.length();
                         if (isSimple) {
                             if (!"".equals(arrayStrings[i])) {
-                                buffer.append(" "+arrayStrings[i].charAt(0) + " ");
+                                buffer.append(" " + arrayStrings[i].charAt(0) + " ");
                             }
                         } else {
-                            buffer.append(" "+arrayStrings[i] + " ");
+                            buffer.append(" " + arrayStrings[i] + " ");
                         }
                         convert(n + 1, str);
                         buffer.delete(len, buffer.length());
                     }
                 }
             } else {
-                //任意非数字与字母的char均当成空格
-                if (Character.isDigit(c)||TextUtil.isEnglishCharactor(c)) {                    
+                // 任意非数字与字母的char均当成空格
+                if (Character.isDigit(c) || TextUtil.isEnglishCharactor(c) || c == '#' || c == '*') {
                     buffer.append(c);
-                }else {
+                } else {
                     buffer.append(" ");
                 }
                 convert(n + 1, str);
