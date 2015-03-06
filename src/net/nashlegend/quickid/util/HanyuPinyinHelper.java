@@ -144,8 +144,10 @@ public class HanyuPinyinHelper {
                 }
             } else {
                 // 任意非数字与字母的char均当成空格
-                if (Character.isDigit(c) || TextUtil.isEnglishCharactor(c) || c == '#' || c == '*') {
+                if (Character.isDigit(c) || TextUtil.isEnglishCharactor(c)) {
                     buffer.append(c);
+                } else if (c == '#' || c == '*') {
+                    buffer.append(" ").append(c).append(" ");
                 } else {
                     buffer.append(" ");
                 }
