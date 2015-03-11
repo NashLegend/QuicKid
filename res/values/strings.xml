@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">QuicKid</string>
+    <string name="app_name">快拨</string>
     <string name="hello_world">Hello world!</string>
     <string name="dialpad_0_number">0</string>
     <string name="dialpad_1_number">1</string>
