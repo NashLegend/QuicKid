@@ -85,11 +85,20 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 
         @Override
         public int compare(Contact lhs, Contact rhs) {
-
             if (lhs.matchValue.score > rhs.matchValue.score) {
                 return -1;
             } else if (lhs.matchValue.score == rhs.matchValue.score) {
-                return 0;
+            	if (lhs.matchValue.matchType == Contact.Match_Type_Name
+						&& lhs.matchValue.nameIndex < lhs.fullNamesString
+								.size()
+						&& rhs.matchValue.nameIndex < rhs.fullNamesString
+								.size()) {
+					return lhs.fullNamesString.get(lhs.matchValue.nameIndex)
+							.compareTo(
+									rhs.fullNamesString
+											.get(rhs.matchValue.nameIndex));
+				}
+				return 0;
             } else {
                 return 1;
             }
